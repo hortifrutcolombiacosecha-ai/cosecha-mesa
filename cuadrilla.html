@@ -1,0 +1,803 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1E4E6B"><link rel="manifest" href="manifest-cuadrilla.json"><link rel="icon" href="icono-cuadrilla-192.png"><link rel="apple-touch-icon" href="icono-cuadrilla-192.png"><meta name="mobile-web-app-capable" content="yes"></head><body><title>Cuadrilla en Campo</title>
+<noscript><style>body>*:not(noscript){display:none!important}</style>
+<div style="font-family:system-ui,Roboto,Arial,sans-serif;max-width:420px;margin:40px auto;padding:20px;background:#fff;color:#1B1F1C;border:1px solid #D9D4C7;border-radius:16px;line-height:1.45">
+<h1 style="font-size:20px;margin:0 0 8px">Abra este archivo con Chrome</h1>
+<p style="margin:0 0 10px">Este visor no ejecuta la app. Para usarla:</p>
+<ol style="margin:0 0 10px;padding-left:20px"><li>Vaya a <b>Ajustes → Aplicaciones</b> y busque el visor que abrió este archivo (por ejemplo "Visor HTML").</li><li>Toque <b>Abrir de forma predeterminada → Borrar valores predeterminados</b>.</li><li>Vuelva a abrir el archivo y elija <b>Chrome</b> → <b>Siempre</b>.</li></ol>
+<p style="margin:0;font-size:14px;color:#56635A">Sus datos no se pierden: quedan guardados en el navegador donde trabajó.</p></div></noscript>
+<style>
+html.locked body>*:not(#lockScr){display:none!important}
+#lockScr{display:none}
+html.locked #lockScr{display:flex;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:16px;background:#F4F1EA;color:#1B1F1C;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#lockScr .lk-in{width:100%;max-width:340px;background:#fff;border:1px solid #D9D4C7;border-radius:16px;padding:22px 18px;text-align:center}
+#lockScr h1{font-size:20px;margin:0 0 4px}
+#lockScr p{margin:0 0 14px;font-size:14px;opacity:.75}
+#lockScr input{font:inherit;font-size:28px;letter-spacing:10px;text-align:center;width:100%;min-height:54px;border:1px solid #C9C3B4;border-radius:10px;background:#fff;color:#1B1F1C}
+#lockScr button{font:inherit;font-size:16px;font-weight:700;margin-top:12px;width:100%;min-height:50px;border:0;border-radius:10px;background:#1E6B47;color:#fff;cursor:pointer}
+#lockScr .lk-err{color:#B42318;font-size:14px;min-height:20px;margin-top:8px}
+</style>
+<div id="lockScr" role="dialog" aria-modal="true" aria-labelledby="lkT"><div class="lk-in">
+  <h1 id="lkT">Activar este celular</h1>
+  <p>Ingrese el PIN del coordinador. Se pide una sola vez en cada celular.</p>
+  <input id="lkPin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" aria-label="PIN">
+  <button id="lkBtn" type="button">Activar</button>
+  <div class="lk-err" id="lkErr" aria-live="polite"></div>
+</div></div>
+<script>
+(function(){
+var H="474172673ce56928b7bd687618152954c8c7c7ce36c3970d4da82d05b9f53ea5",K="hf-santana-activo",SALT="hf-santana-v1|";
+function sha256(a){function r(n,x){return(x>>>n)|(x<<(32-n))}var m=Math.pow,w=m(2,32),i,j,res="",words=[],bl=a.length*8,h=[],k=[],pc=0,ic={};
+for(var c=2;pc<64;c++){if(!ic[c]){for(i=0;i<313;i+=c)ic[i]=c;h[pc]=(m(c,.5)*w)|0;k[pc++]=(m(c,1/3)*w)|0}}h=h.slice(0,8);
+a=unescape(encodeURIComponent(a));bl=a.length*8;a+="\x80";while(a.length%64-56)a+="\x00";for(i=0;i<a.length;i++){j=a.charCodeAt(i);words[i>>2]|=j<<((3-i)%4)*8}
+words[words.length]=((bl/w)|0);words[words.length]=bl;
+for(j=0;j<words.length;){var W=words.slice(j,j+=16),old=h;h=h.slice(0,8);
+for(i=0;i<64;i++){var w15=W[i-15],w2=W[i-2],a0=h[0],e=h[4];
+var t1=h[7]+(r(6,e)^r(11,e)^r(25,e))+((e&h[5])^((~e)&h[6]))+k[i]+(W[i]=(i<16)?W[i]:(W[i-16]+(r(7,w15)^r(18,w15)^(w15>>>3))+W[i-7]+(r(17,w2)^r(19,w2)^(w2>>>10)))|0);
+var t2=(r(2,a0)^r(13,a0)^r(22,a0))+((a0&h[1])^(a0&h[2])^(h[1]&h[2]));h=[(t1+t2)|0].concat(h);h[4]=(h[4]+t1)|0}
+for(i=0;i<8;i++)h[i]=(h[i]+old[i])|0}
+for(i=0;i<8;i++)for(j=3;j+1;j--){var b=(h[i]>>(j*8))&255;res+=(b<16?0:"")+b.toString(16)}return res}
+var ok=false;try{ok=localStorage.getItem(K)===H}catch(e){}
+if(ok)return;
+document.documentElement.classList.add("locked");
+function tryPin(){var v=document.getElementById("lkPin").value.trim();
+  if(sha256(SALT+v)===H){try{localStorage.setItem(K,H)}catch(e){}document.documentElement.classList.remove("locked");window.scrollTo(0,0)}
+  else{document.getElementById("lkErr").textContent="PIN incorrecto";document.getElementById("lkPin").value="";document.getElementById("lkPin").focus()}}
+document.getElementById("lkBtn").addEventListener("click",tryPin);
+document.getElementById("lkPin").addEventListener("keydown",function(e){if(e.key==="Enter")tryPin()});
+setTimeout(function(){var i=document.getElementById("lkPin");if(i)i.focus()},100);
+})();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@600;700&family=Archivo:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: herramienta de una mano para el supervisor; línea de tiempo de lotes (plan vs real) como eje; pestañas abajo */
+:root{
+  --bg:#EEF1EC; --surface:#FFFFFF; --surface2:#E4E9E2; --ink:#121A15; --muted:#56635A; --line:#C9D2C6;
+  --accent:#1E5E43; --accent-ink:#FFFFFF;
+  --input:#E3F0FA; --input-line:#7FAAD3; --input-ink:#0F3A63;
+  --fr:#C4502F; --fr-soft:#F6D9CF; --za:#87339A; --za-soft:#ECD7F1;
+  --plan:#9AA79F; --real:#1E5E43; --walk:#D99A00;
+  --ok:#1F7A45; --ok-soft:#D3EEDC; --warn:#8A5A00; --warn-soft:#FAE8C2; --bad:#B42318; --bad-soft:#FAD7D2;
+  --esp:var(--fr); --esp-soft:var(--fr-soft);
+  --display:"Archivo Narrow","Arial Narrow",Arial,sans-serif; --body:"Archivo",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+:root,:root[data-theme="dark"]{color-scheme:light}
+body.ZA{--esp:var(--za);--esp-soft:var(--za-soft)}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--body);font-size:15px;line-height:1.4;font-variant-numeric:tabular-nums}
+.wrap{max-width:720px;margin:0 auto;padding-inline:16px;padding-block:0 110px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:3px solid var(--esp)}
+.top-in{max-width:720px;margin:0 auto;padding:8px 16px;display:flex;gap:10px;align-items:center}
+.brand{flex:1;min-width:0;font-family:var(--display);font-weight:700;font-size:20px;line-height:1.05}
+.brand small{display:block;font-family:var(--body);font-weight:500;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clock{font-family:var(--display);font-weight:700;font-size:22px;background:none;border:0;color:inherit;cursor:pointer;padding:6px 0 6px 8px;min-height:44px;text-decoration:underline dotted;text-underline-offset:4px;text-decoration-thickness:1px}
+h2{font-family:var(--display);font-weight:700;font-size:26px;margin:16px 0 4px;text-wrap:balance}
+h3{font-family:var(--display);font-weight:700;font-size:19px;margin:18px 0 8px}
+.lead{color:var(--muted);margin:0 0 10px;font-size:14px}
+.note{color:var(--muted);font-size:13px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
+.list{display:flex;flex-direction:column;gap:8px}
+.btn{font:inherit;font-weight:700;font-size:15px;min-height:44px;padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.big{min-height:56px;font-size:17px;width:100%}
+.btn.sm{min-height:36px;padding:4px 10px;font-size:14px}
+.btn.icon{min-width:40px;padding:4px}
+.btn.danger{color:var(--bad)}
+.btn:disabled{opacity:.45}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+input[type=number],input[type=text],input[type=time],input[type=date],select{font:inherit;font-size:16px;min-height:42px;padding:6px 8px;border:1px solid var(--input-line);background:var(--input);color:var(--input-ink);border-radius:8px;width:100%;min-width:0}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.field label{display:block;font-size:12px;color:var(--muted);font-weight:700;margin-bottom:3px}
+.seg{display:flex;gap:6px}.seg .btn{flex:1}
+.seg .btn[aria-pressed=true]{background:var(--esp);border-color:var(--esp);color:#fff}
+.stepper{display:flex;align-items:center;gap:8px}
+.stepper .pernum{font-family:var(--display);font-weight:700;font-size:32px;min-width:64px;min-height:52px;text-align:center;background:var(--input);color:var(--input-ink);border:1px solid var(--input-line);border-radius:10px;cursor:pointer}
+.kgall{display:grid;gap:6px}.kgrow{display:grid;grid-template-columns:1fr 130px;gap:10px;align-items:center;border-bottom:1px solid var(--line);padding:4px 0}.kgrow label{font-size:18px}.kgrow input{text-align:right;font-size:18px}
+.tq{display:flex;gap:4px;margin-top:6px}.tq .btn{min-height:38px;padding:4px 10px;font-size:14px;flex:1 1 0;min-width:0}
+.stepper b{font-family:var(--display);font-size:32px;min-width:56px;text-align:center}
+.stepper .btn{min-width:56px;font-size:24px}
+/* resumen */
+.hero{background:var(--surface);border:1px solid var(--line);border-left:8px solid var(--esp);border-radius:14px;padding:12px;margin-top:12px}
+.hero .big{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.05}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:10px}
+.k{background:var(--surface2);border-radius:10px;padding:6px 8px}
+.k b{display:block;font-family:var(--display);font-size:24px;line-height:1.05}
+.k span{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700}
+.k.bad b{color:var(--bad)} .k.ok b{color:var(--ok)}
+.dec{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.d{display:flex;gap:8px;align-items:flex-start;border-radius:10px;padding:9px 10px;font-size:14px;font-weight:600}
+.d i{font-style:normal;font-weight:800;min-width:16px}
+.d.bad{background:var(--bad-soft);color:var(--bad)} .d.warn{background:var(--warn-soft);color:var(--warn)} .d.ok{background:var(--ok-soft);color:var(--ok)} .d.info{background:var(--input);color:var(--input-ink)}
+.d button{margin-top:6px}
+/* timeline */
+.gantt{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:10px}
+.g-axis{position:relative;height:18px;margin-left:46px;font-size:11px;color:var(--muted)}
+.g-axis span{position:absolute;transform:translateX(-50%)}
+.g-row{display:grid;grid-template-columns:40px 1fr;gap:6px;align-items:center;margin:4px 0}
+.g-row b{font-family:var(--display);font-size:17px}
+.g-track{position:relative;height:28px;background:var(--surface2);border-radius:6px;overflow:hidden}
+.g-bar{position:absolute;top:3px;height:9px;border-radius:4px}
+.g-bar.plan{background:var(--plan)} .g-bar.real{top:15px;background:var(--esp)} .g-bar.proj{top:15px;background:repeating-linear-gradient(90deg,var(--esp) 0 6px,transparent 6px 10px)}
+.g-now{position:absolute;top:0;bottom:0;width:2px;background:var(--ink)}
+.g-lim{position:absolute;top:0;bottom:0;width:2px;background:var(--bad)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:16px;height:8px;border-radius:3px;margin-right:4px;vertical-align:middle}
+/* plan: resumen + línea de tiempo */
+.phero{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px}
+.phero .lbl{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700}
+.phero .end{font-family:var(--display);font-weight:700;font-size:44px;line-height:1}
+.phero .end small{font-family:var(--body);font-size:14px;font-weight:600;color:var(--muted);margin-left:6px}
+.phero .ok{color:var(--ok)} .phero .bad{color:var(--bad)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip2{font:inherit;font-size:14px;font-weight:600;border:1px solid var(--line);background:var(--surface2);color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer;min-height:36px}
+.chip2 b{font-family:var(--display);font-size:16px}
+.tl2{margin-top:14px;position:relative}
+.tli2{display:grid;grid-template-columns:52px 18px 1fr;gap:0 8px;align-items:stretch}
+.tli2 .tm{text-align:right;padding-top:12px;font-family:var(--display);font-weight:700;font-size:17px;line-height:1.1}
+.tli2 .tm small{display:block;font-family:var(--body);font-weight:500;font-size:12px;color:var(--muted)}
+.tli2 .rail{position:relative}
+.tli2 .rail::before{content:"";position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--line)}
+.tli2 .rail i{position:absolute;left:2px;top:16px;width:14px;height:14px;border-radius:50%;background:var(--esp);border:3px solid var(--bg)}
+.tli2:first-child .rail::before{top:18px} .tli2.last .rail::before{bottom:calc(100% - 18px)}
+.lot2{font:inherit;text-align:left;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:4px 0;display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;color:var(--ink)}
+.lot2 .nm{font-family:var(--display);font-weight:700;font-size:28px;line-height:1}
+.lot2 .sub{font-size:13px;color:var(--muted)}
+.kgc{font-family:var(--display);font-weight:700;font-size:20px;background:var(--esp-soft);color:var(--esp);border-radius:10px;padding:4px 10px;white-space:nowrap}
+.kgc.miss{background:var(--warn-soft);color:var(--warn);font-size:15px}
+.wk{grid-column:3;font-size:12px;color:var(--muted);padding:2px 4px 2px 6px}
+.addl{border:2px dashed var(--line);background:transparent;color:var(--muted);font-weight:700;justify-content:center}
+.sfields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.actbtn{width:100%;min-height:56px;font-size:18px;margin-top:12px}
+/* lot cards */
+.lc{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center}
+.lc .nm{font-family:var(--display);font-weight:700;font-size:26px;line-height:1}
+.lc .meta{grid-column:1/-1;font-size:13px;color:var(--muted)}
+.lc .acts{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.lc.cur{border:2px solid var(--esp)}
+.lc.done{opacity:.85}
+.st{display:inline-block;font-size:11px;font-weight:800;border-radius:999px;padding:2px 8px}
+.st.ok{background:var(--ok-soft);color:var(--ok)} .st.warn{background:var(--warn-soft);color:var(--warn)} .st.bad{background:var(--bad-soft);color:var(--bad)} .st.esp{background:var(--esp-soft);color:var(--esp)} .st.mute{background:var(--surface2);color:var(--muted)}
+.walk{font-size:12px;color:var(--walk);font-weight:700;padding-left:14px}
+.prow{display:grid;grid-template-columns:28px minmax(0,1fr) 92px auto;gap:6px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 8px}
+.prow .nm{font-family:var(--display);font-weight:700;font-size:22px}
+.prow .t{font-size:12px;color:var(--muted)}
+.idx{font-weight:800;color:var(--muted);text-align:center}
+.pick{display:flex;flex-wrap:wrap;gap:6px}
+.sug{border-left:6px solid var(--accent)}
+.sug .ord{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0}
+.sug .ord span{font-family:var(--display);font-weight:700;font-size:16px;background:var(--surface2);border-radius:6px;padding:2px 7px}
+.sug .ord span.mv{background:var(--esp-soft);color:var(--esp)}
+.sug .ord span.out{text-decoration:line-through;color:var(--muted)}
+.cmp{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:6px}
+.cmp div{background:var(--surface2);border-radius:8px;padding:5px 8px;font-size:12px;color:var(--muted)}
+.cmp b{display:block;font-family:var(--display);font-size:19px;color:var(--ink)}
+.scroll{overflow-x:auto}
+table.t{border-collapse:collapse;width:100%;font-size:14px}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:6px;text-align:left;white-space:nowrap}
+table.t th{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--surface);border-radius:18px 18px 0 0;padding:14px 16px calc(18px + env(safe-area-inset-bottom,0px));box-shadow:0 -8px 30px rgba(0,0,0,.25)}
+.sheet .in{max-width:640px;margin:0 auto}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:20}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs .in{display:grid;grid-template-columns:repeat(4,1fr);max-width:720px;margin:0 auto}
+nav.tabs button{font:inherit;background:none;border:0;color:var(--muted);padding:7px 2px 9px;font-size:12px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px}
+nav.tabs button b{font-family:var(--display);font-size:18px;line-height:1}
+nav.tabs button[aria-current=true]{color:var(--esp);box-shadow:inset 0 3px 0 var(--esp)}
+.toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:999px;font-weight:700;font-size:14px;z-index:30;white-space:nowrap}
+.pzl{margin-top:8px;display:grid;gap:6px}.pzr{display:flex;gap:8px;align-items:center;flex-wrap:wrap;border:1px solid var(--input-line);border-radius:10px;padding:6px 10px}.pzr span{color:var(--muted,inherit);flex:1}.pzopt{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}.pzopt .on{outline:2px solid currentColor}
+.gcard{margin-top:10px;padding:12px}.gcard .end{font-size:32px}.gdet{margin-top:8px}.gdet summary{cursor:pointer;font-weight:700;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);list-style:none;min-height:44px}.gdet summary::-webkit-details-marker{display:none}.gdet summary::after{content:" ▾";color:var(--muted)}.gdet[open] summary::after{content:" ▴"}
+.estk{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}.estk div{background:var(--bg,transparent);border:1px solid var(--line);border-radius:10px;padding:8px}.estk b{display:block;font-family:var(--display);font-size:24px;line-height:1.1}.estk span{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+#estT th,#estT td{padding:8px 6px;vertical-align:top;white-space:normal}#estSum th,#estSum td{padding:5px 4px;font-size:13px}#estT .btn.sm{padding:4px 8px;font-size:13px}
+table.ped{border-collapse:collapse;width:100%}table.ped th,table.ped td{padding:3px;text-align:center;font-size:13px}table.ped input{min-height:40px;text-align:center;padding:2px;font-size:16px;min-width:56px}table.ped td:first-child{font-weight:700}
+.ask{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="top"><div class="top-in">
+  <div class="brand">Cuadrilla en Campo<small id="hSub"></small></div>
+  <button type="button" class="clock" id="clock" aria-label="Cambiar la hora del reloj">--:--</button>
+</div></header>
+
+<div class="wrap">
+<div id="exBox"></div>
+
+<section data-tab="plan" id="tab-plan">
+  <div class="phero" id="planHero"></div>
+  <div class="tl2" id="planList"></div>
+  <div id="pickBox"></div>
+  <div class="bar" style="margin-top:14px"><button class="btn" id="kgAllBtn">Poner kilos de todos los lotes</button></div>
+  <div class="bar" style="margin-top:8px"><button class="btn primary big" id="goLive">Empezar el día con esta ruta</button></div>
+</section>
+
+<section data-tab="vivo" id="tab-vivo" hidden>
+  <div class="hero" id="hero"></div>
+  <div class="dec" id="decs"></div>
+  <h3>Personas en campo ahora</h3>
+  <div class="stepper"><button class="btn" data-p="-1" aria-label="Una persona menos">−</button><button type="button" class="pernum" id="perNow" aria-label="Escribir número de personas">0</button><button class="btn" data-p="1" aria-label="Una persona más">+</button><span class="note" id="perNote"></span></div>
+  <div class="phero gcard" id="gHero"></div>
+  <details class="gdet" id="gDet"><summary>Enviar gente a otra actividad</summary>
+    <div class="card" id="gInfo" style="margin-top:10px"></div>
+    <div class="stepper" style="margin-top:10px"><button class="btn" data-gk="-1" aria-label="Una persona menos">−</button><b id="gK">0</b><button class="btn" data-gk="1" aria-label="Una persona más">+</button><span class="note" id="gKNote"></span></div>
+    <div class="field" style="margin-top:8px"><label for="gAct">Actividad o destino</label><input type="text" id="gAct" placeholder="Ej: poda, deshoje, apoyo grupo 2"></div>
+    <div class="bar"><button class="btn primary big" id="gSend">Registrar salida</button></div>
+    <h3>Cuántas personas dejar</h3>
+    <div class="scroll card"><table class="t" id="gT"></table></div>
+  </details>
+  <div class="bar"><button class="btn" id="pauseBtn">+ Registrar pausa (almuerzo / lluvia)</button></div>
+  <div id="pauseBox"></div>
+  <div class="gantt" id="liveGantt"></div>
+  <h3>Lotes del día</h3>
+  <div class="list" id="liveList"></div>
+  <div class="bar"><button class="btn primary big" id="waBtn">Copiar reporte para WhatsApp</button></div>
+  <div id="waBox"></div>
+</section>
+
+
+
+
+
+<section data-tab="est" id="tab-est" hidden>
+  <div class="phero" id="estCard"></div>
+  <h3>Pedido del día (estuches)</h3>
+  <p class="note" style="margin-top:-4px">Estuches por viaje y presentación que le tocan a esta cuadrilla, como llega de packing.</p>
+  <div class="scroll"><table class="ped" id="pedT"></table></div>
+  <div class="bar"><button class="btn sm" id="pedAdd">+ Viaje</button><button class="btn sm" id="pedDel">Quitar último viaje</button></div>
+  <h3>Por lote (en orden de ruta)</h3>
+  <div class="scroll card"><table class="t" id="estT"></table></div>
+  <h3>Recibidos de bodega</h3>
+  <div id="estRecList"></div>
+  <h3>Ajustes</h3>
+  <div class="fields">
+    <div class="field"><label for="pctC">% comercial de los kilos</label><input type="number" inputmode="numeric" enterkeyhint="done" id="pctC" min="1" max="100"></div>
+    <div class="field"><label for="estMg">Estuches extra % (daños)</label><input type="number" inputmode="numeric" enterkeyhint="done" id="estMg" min="0"></div>
+  </div>
+  <p class="note">Los estuches se reparten en el orden de la ruta: el primer lote llena el viaje 1, luego el 2… con sus kilos comerciales (kilos estimados × % comercial).</p>
+</section>
+
+<section data-tab="datos" id="tab-datos" hidden>
+  <h2>Datos y ajustes</h2>
+  <div class="fields">
+    <div class="field"><label for="cSup">Supervisor</label><input type="text" id="cSup" placeholder="Nombre"></div>
+    <div class="field"><label for="cGrp">Grupo</label><input type="text" id="cGrp"></div>
+    <div class="field"><label for="cFecha">Fecha</label><input type="date" id="cFecha"></div>
+    <div class="field"><label for="cVel">Velocidad caminando (m por minuto)</label><input type="number" inputmode="numeric" enterkeyhint="done" id="cVel"></div>
+    <div class="field"><label for="cFix">Minutos para acomodarse en cada lote</label><input type="number" inputmode="numeric" enterkeyhint="done" id="cFix"></div>
+  </div>
+  <div id="walkInfo" style="margin-top:8px"></div>
+  <h3>Cálculo de personas</h3>
+  <div class="fields" style="margin-top:12px">
+    <div class="field"><label for="gMeta">Fin de jornada</label><input type="time" id="gMeta"></div>
+    <div class="field"><label for="gPz">Pausas (min)</label><input type="number" inputmode="numeric" enterkeyhint="done" id="gPz" min="0"></div>
+    <div class="field"><label for="gAnt">Terminar antes (min)</label><input type="number" inputmode="numeric" enterkeyhint="done" id="gAnt" min="0"></div>
+    <div class="field"><label for="gDev">Desviación adicional %</label><input type="number" inputmode="numeric" enterkeyhint="done" id="gDev" min="0"></div>
+  </div>
+  <h3>Especie</h3>
+  <div class="seg"><button class="btn" data-esp="FRAMBUESA">Frambuesa</button><button class="btn" data-esp="ZARZAMORA">Zarzamora</button></div>
+  <h3>Exportar</h3>
+  <div class="bar" style="margin-top:0"><button class="btn primary" id="waBtn2">Copiar reporte para WhatsApp</button></div>
+  <div id="expState"></div>
+  <div class="bar"><button class="btn primary" id="csvLots">CSV por lote (plan vs real)</button><button class="btn" id="csvLog">CSV de registros</button></div>
+  <div id="csvBox"></div>
+  <h3>Rendimiento real por lote</h3>
+  <div class="scroll card"><table class="t" id="perfT"></table></div>
+  <h3>Nuevo día</h3>
+  <div class="bar"><button class="btn danger" id="newDay">Empezar día nuevo</button></div>
+  <div id="askBox"></div>
+</section>
+
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true"><div class="in" id="sheetIn"></div></div>
+
+<nav class="tabs" aria-label="Secciones"><div class="in">
+  <button data-go="plan" aria-current="true"><b>1</b>Ruta</button>
+  <button data-go="vivo"><b>2</b>En vivo</button>
+  <button data-go="est"><b>3</b>Estuches</button>
+  <button data-go="datos"><b>4</b>Datos</button>
+</div></nav>
+
+<script>
+const MAPA=[["A9","","",378,340,""],["A8","","",446,395,""],["A7","","",502,446,""],["A6","","",574,544,""],["A5","","",633,586,""],["A4","Rubichick","FRAMBUESA",701,663,""],["A3","Rubichick","FRAMBUESA",778,727,""],["A2","Julieta","FRAMBUESA",842,778,5],["A1","Rubichick","FRAMBUESA",897,816,""],["B9","Fenomenal","ZARZAMORA",314,400,2],["B8","Fenomenal","ZARZAMORA",382,455,2],["B7","Fenomenal","ZARZAMORA",442,514,3],["B6","Fenomenal","ZARZAMORA",510,586,3],["B5","Rubichick","FRAMBUESA",574,654,""],["B4","Julieta","FRAMBUESA",642,701,4],["B3","Fenomenal","ZARZAMORA",714,765,6],["B2","Fenomenal","ZARZAMORA",765,842,6],["B1","Julieta","FRAMBUESA",846,884,""],["C9","Rubichick","FRAMBUESA",246,459,1],["C8","Rubichick","FRAMBUESA",314,523,1],["C7","Rubichick","FRAMBUESA",374,595,""],["C6","","",446,642,""],["C5","Fenomenal","ZARZAMORA",510,710,4],["C3","Julieta","FRAMBUESA",642,837,""],["C2","Julieta","FRAMBUESA",714,905,""],["C1","Rubichick","FRAMBUESA",765,965,""],["D9","Legacy","",174,552,""],["D8","Legacy","",238,586,""],["D7","Legacy","",374,659,""],["D6","Legacy","",374,731,""],["D5","Legacy","",429,803,""],["D4","Rubichick","FRAMBUESA",502,876,""],["D3","Rubichick","FRAMBUESA",574,939,""],["D2","Julieta","FRAMBUESA",646,1007,7],["D1","Julieta","FRAMBUESA",693,1062,""],["E8","","",174,667,""],["E7","","",219,746,""],["E6","","",310,778,""],["E4","Fenomenal","ZARZAMORA",446,935,8],["E3","Fenomenal","ZARZAMORA",497,1007,""],["E2","Fenomenal","ZARZAMORA",544,1075,8],["E1","Fenomenal","ZARZAMORA",629,1135,8]];
+const KEY="cuadrilla-tiempos-v1";
+const XY={};MAPA.forEach(m=>XY[m[0]]={x:m[3],y:m[4],e:m[2]});
+const $=id=>document.getElementById(id);
+const n=v=>{const x=parseFloat(v);return isFinite(x)?x:0};
+const f0=v=>Math.round(v).toLocaleString("es-CO");
+const f1=v=>(Math.round(v*10)/10).toLocaleString("es-CO",{minimumFractionDigits:1,maximumFractionDigits:1});
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pad=x=>String(x).padStart(2,"0");
+const toMin=s=>{const [a,b]=(s||"0:0").split(":").map(Number);return a*60+(b||0)};
+const minTo=m=>{m=((Math.round(m)%1440)+1440)%1440;return pad(Math.floor(m/60))+":"+pad(m%60)};
+const dur=m=>{m=Math.round(m);const s=m<0?"-":"";m=Math.abs(m);return s+(m>=60?Math.floor(m/60)+" h "+pad(m%60):m+" min")};
+const nowMin=()=>{if(typeof S!=="undefined"&&S&&S.ejemplo)return 510;const d=new Date();const off=typeof S!=="undefined"&&S&&S.clkOff?S.clkOff:0;return (((d.getHours()*60+d.getMinutes()+d.getSeconds()/60+off)%1440)+1440)%1440};
+const clkTxt=()=>minTo(nowMin())+(S.ejemplo?"*":S.clkOff?" ✎":"");
+function hoy(){const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function def(){return {sup:"",grp:"1",fecha:hoy(),esp:"FRAMBUESA",ini:"06:00",lim:"13:00",per:32,rend:2.1,vel:70,fix:2,ver:2,
+  lots:[{l:"A2",kg:64},{l:"B4",kg:95},{l:"D2",kg:104},{l:"C8",kg:70}],plan:null,
+  otro:{g:"2",esp:"ZARZAMORA",per:25,rend:2.6,ini:"06:00",lots:[{l:"B9",kg:134},{l:"B8",kg:172},{l:"B7",kg:120},{l:"B6",kg:117},{l:"B2",kg:55},{l:"B3",kg:44}],pos:null},
+  started:false,perLog:[],pauses:[],pausa:null,log:[],exported:null,ejemplo:true}}
+let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}if(!S)S=def();
+(S.lots||[]).forEach(L=>{if(L.s!=null&&L.e!=null&&L.e<=L.s){delete L.s;delete L.e;delete L.kgR}});
+{const fi=Math.max(0,[90,125,150,250].indexOf(Number(S.estFmt||125)));(S.lots||[]).forEach(L=>{if(L.estE!=null&&!L.ent){L.ent=[0,0,0,0];L.ent[fi]=+L.estE||0;L.sob=[0,0,0,0];L.sob[fi]=+L.estS||0;delete L.estE;delete L.estS}});(S.estRec||[]).forEach(r=>{if(!Array.isArray(r.q)){const q=[0,0,0,0];q[fi]=+r.q||0;r.q=q}})}
+if(!S.otro)S.otro=def().otro;
+if(!S.ver){if(n(S.vel)===50)S.vel=70;if(n(S.fix)===5)S.fix=2;S.ver=2;S.plan=S.started?S.plan:null}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function logE(k,o){S.log.push({t:minTo(nowMin()),k,...o});}
+
+/* ---------- distancias ---------- */
+/* ===== calles y caminos (del plano marcado por Cristian) =====
+   k = línea entre columnas (0 = borde izq. de la col 9 … 9 = borde der. de la col 1); j = línea entre filas (0 = sobre A, 3 = entre C y D, 5 = bajo E) */
+const VIAS=[{t:"calle",a:[0,0],b:[9,0]},{t:"calle",a:[0,3],b:[9,3]},{t:"camino",a:[1,0],b:[1,3]},{t:"camino",a:[3,0],b:[3,3]},{t:"camino",a:[5,0],b:[5,4]},{t:"camino",a:[7,0],b:[7,5]}];
+const MK=88,MJ=100;
+const RG=(()=>{const N={},E=[];const key=(k,j)=>k+","+j;
+  VIAS.forEach(v=>{const [k1,j1]=v.a,[k2,j2]=v.b;const dk=Math.sign(k2-k1),dj=Math.sign(j2-j1);let k=k1,j=j1;N[key(k,j)]=N[key(k,j)]||{k,j,t:{}};N[key(k,j)].t[v.t]=1;
+    while(k!==k2||j!==j2){const nk=k+dk,nj=j+dj;const a=key(k,j),b=key(nk,nj);N[b]=N[b]||{k:nk,j:nj,t:{}};N[b].t[v.t]=1;E.push([a,b,dk?MK:MJ,v.t]);k=nk;j=nj}});
+  const ids=Object.keys(N),D={},NX={};ids.forEach(a=>{D[a]={};NX[a]={};ids.forEach(b=>{D[a][b]=a===b?0:1e9;NX[a][b]=b})});
+  E.forEach(([a,b,w])=>{D[a][b]=D[b][a]=w});
+  ids.forEach(m=>ids.forEach(a=>ids.forEach(b=>{if(D[a][m]+D[m][b]<D[a][b]){D[a][b]=D[a][m]+D[m][b];NX[a][b]=NX[a][m]}})));
+  const ET={};E.forEach(([a,b,w,t])=>{ET[a+"|"+b]=ET[b+"|"+a]=t});
+  const path=(a,b)=>{const p=[a];let c=a,g=0;while(c!==b&&g++<200){c=NX[c][b];p.push(c)}return p};
+  return {N,D,ids,path,ET}})();
+function cellKJ(l){const m=/^([A-E])(\d)$/i.exec(l||"");if(!m)return null;return [9-Number(m[2])+.5,"ABCDE".indexOf(m[1].toUpperCase())+.5]}
+const ROUTE={};
+/* metros por las vías: salir del lote a la vía más cercana, seguir calles/caminos y entrar al otro lote.
+   Lotes vecinos (lado con lado) se pasan directo por la cabecera (30 m). */
+function routeInfo(a,b){const k=a+">"+b;if(ROUTE[k])return ROUTE[k];
+  const A=cellKJ(a),B=cellKJ(b);let r;
+  if(!A||!B){const P=XY[a],Q=XY[b];r={m:P&&Q?Math.max(30,Math.hypot(P.x-Q.x,P.y-Q.y)-90):120,how:"directo"}}
+  else{const dk=Math.abs(A[0]-B[0]),dj=Math.abs(A[1]-B[1]);
+    if(dk+dj<=1.01)r={m:30,how:"al lote vecino"};
+    else{const acc=(c,id)=>{const nd=RG.N[id];return Math.max(0,Math.hypot((nd.k-c[0])*MK,(nd.j-c[1])*MJ)-45)};let best=1e12,bA=null,bB=null;
+      /* acceso: solo por las vías que tocan el lote (esquinas de su celda); si ninguna lo toca, la más cercana */
+      const near=c=>{const ci=c[0]-.5,ri=c[1]-.5;let ids=RG.ids.filter(id=>{const nd=RG.N[id];return (nd.k===ci||nd.k===ci+1)&&(nd.j===ri||nd.j===ri+1)});
+        if(!ids.length){const ord=RG.ids.slice().sort((x,y)=>acc(c,x)-acc(c,y));ids=ord.slice(0,2)}return ids};
+      near(A).forEach(x=>{const ax=acc(A,x);near(B).forEach(y=>{const by=acc(B,y);const t=ax+RG.D[x][y]+by;if(t<best){best=t;bA=x;bB=y}})});
+      if(bA==null){const P=XY[a],Q=XY[b];r={m:P&&Q?Math.max(30,Math.hypot(P.x-Q.x,P.y-Q.y)-90):120,how:"directo"}}
+      else{const p=RG.path(bA,bB);const ts=new Set();for(let i=1;i<p.length;i++)ts.add(RG.ET[p[i-1]+"|"+p[i]]);
+        r={m:Math.max(30,best),how:ts.size?(ts.has("calle")&&ts.has("camino")?"por camino y calle":ts.has("calle")?"por la calle":"por el camino"):"por la esquina"}}}}
+  ROUTE[k]=r;return r}
+function distM(a,b){return routeInfo(a,b).m}
+function walkRaw(a,b){return a&&b?distM(a,b)/Math.max(10,n(S.vel))+n(S.fix):0}
+function walkFactor(){let real=0,pred=0,k=0;for(let i=1;i<S.lots.length;i++){const P=S.lots[i-1],L=S.lots[i];if(P.e!=null&&L.s!=null&&L.s>=P.e){const r=L.s-P.e;const p=walkRaw(P.l,L.l);if(p>0&&r<120){real+=r;pred+=p;k++}}}
+  return k?{f:Math.min(3,Math.max(0.3,real/pred)),k,real,pred}:null}
+function walkMin(a,b){const w=walkRaw(a,b);const F=walkFactor();return F?w*F.f:w}
+
+/* ---------- personas y pausas ---------- */
+function perAt(t){let p=n(S.per);S.perLog.forEach(e=>{if(e.m<=t)p=e.v});return p}
+function pauseOverlap(a,b){let s=0;const ps=S.pauses.slice();if(S.pausa)ps.push({a:S.pausa.a,b:nowMin()});ps.forEach(p=>{s+=Math.max(0,Math.min(b,p.b)-Math.max(a,p.a))});return s}
+function personHours(a,b){if(b<=a)return 0;const pts=[a,b,...S.perLog.map(e=>e.m).filter(m=>m>a&&m<b)].sort((x,y)=>x-y);let ph=0;
+  for(let i=0;i<pts.length-1;i++){const x=pts[i],y=pts[i+1];const eff=(y-x)-pauseOverlap(x,y);ph+=perAt(x)*eff/60}return ph}
+
+/* ---------- cálculo ---------- */
+function rateObs(){/* ritmo según tiempos reales: kg estimados del lote ÷ (personas × horas reales). Sin kilos reales. */
+
+  let kg=0,ph=0;const now=nowMin();
+  S.lots.forEach(L=>{if(L.s!=null&&L.e!=null&&n(L.kg)>0){kg+=n(L.kg);ph+=personHours(L.s,L.e)}});
+  return ph>0.5&&kg>0?kg/ph:null}
+function simulate(order,opt){/* order: lista de lotes pendientes; devuelve tiempos proyectados desde "ahora" */
+  const now=opt.from,rate=opt.rate,per=opt.per;let t=now,prev=opt.prev;const out=[];let walk=0;
+  order.forEach((L,i)=>{const w=prev?walkMin(prev,L.l):0;walk+=w;const s=t+w;const kg=Math.max(0,n(L.kg)-(i===0&&opt.curKgDone?opt.curKgDone:0));
+    const h=per>0&&rate>0?kg/(per*rate):0;const e=s+h*60;out.push({l:L.l,s,e,kg:n(L.kg),w});t=e;prev=L.l});
+  return {rows:out,fin:t,walk}}
+function calc(){
+  const now=nowMin(),std=n(S.rend);const ro=rateObs();const rate=ro||std;
+  // plan (congelado al empezar; si no, en vivo desde la ruta inicial)
+  let plan=S.plan||simulate(S.lots,{from:toMin(S.ini),rate:std,per:n(S.per),prev:null}).rows;
+  if(S.plan){/* lotes agregados después de empezar: se encadenan al plan en su posición */
+    const pm={};S.plan.forEach(p=>pm[p.l]=p);let prevL=null,t=toMin(S.ini);plan=[];
+    S.lots.forEach(L=>{let r=pm[L.l];if(!r){const w=prevL?walkMin(prevL,L.l):0;const h=n(S.per)>0&&std>0?n(L.kg)/(n(S.per)*std):0;r={l:L.l,s:t+w,e:t+w+h*60,kg:n(L.kg),w,add:1}}plan.push(r);t=r.e;prevL=L.l})}
+  const P={};plan.forEach(p=>P[p.l]=p);
+  const done=S.lots.filter(L=>L.e!=null),cur=S.lots.find(L=>L.s!=null&&L.e==null),pend=S.lots.filter(L=>L.s==null);
+  let proj=[];let fin=now;
+  if(S.started){
+    const perNow=perAt(now);const lastL=cur?cur.l:(done.length?done[done.length-1].l:null);
+    let from=now;let curRow=null;
+    if(!cur&&done.length&&pend.length){/* sin lote en curso: se asume que siguió la ruta (fin anterior + caminata), no la hora actual */from=done[done.length-1].e}
+    if(cur){const left=Math.max(0,n(cur.kg)-personHours(cur.s,now)*rate);const h=perNow>0?left/(perNow*rate):0;const pauseLeft=S.pausa?0:0;curRow={l:cur.l,s:cur.s,e:Math.max(now,now+h*60+pauseLeft),kg:n(cur.kg),w:0};from=curRow.e}
+    const sim=simulate(pend,{from,rate,per:perNow,prev:lastL});proj=(curRow?[curRow]:[]).concat(sim.rows);fin=proj.length?proj[proj.length-1].e:(done.length?Math.max(...done.map(L=>L.e)):now);
+  }else{proj=plan;fin=plan.length?plan[plan.length-1].e:toMin(S.ini)}
+  const Q={};proj.forEach(p=>Q[p.l]=p);
+  const kgTot=S.lots.reduce((a,L)=>a+n(L.kg),0),kgDone=done.reduce((a,L)=>a+n(L.kg),0)+(cur?Math.min(n(cur.kg),personHours(cur.s,now)*rate):0);
+  let lim=toMin(S.lim);if(lim<toMin(S.ini))lim+=1440;
+  return {now,std,ro,rate,plan,P,proj,Q,fin,lim,done,cur,pend,kgTot,kgDone,perNow:perAt(now),planFin:plan.length?plan[plan.length-1].e:0}
+}
+/* ---------- opciones de reorganización ---------- */
+function routeLen(prev,arr){let w=0,p=prev;arr.forEach(L=>{if(p)w+=walkMin(p,L.l);p=L.l});return w}
+function shortest(prev,arr){if(arr.length<2)return arr.slice();const starts=prev?[null]:arr.map((_,i)=>i);let best=null,bl=1e12;
+  starts.forEach(si=>{let rest=arr.slice(),r=[],p=prev;if(si!=null){r.push(rest.splice(si,1)[0]);p=r[0].l}
+    while(rest.length){let bi=0,bd=1e12;rest.forEach((L,i)=>{const d=walkMin(p,L.l);if(d<bd){bd=d;bi=i}});const L=rest.splice(bi,1)[0];r.push(L);p=L.l}
+    let imp=true;while(imp){imp=false;for(let i=(prev?0:1);i<r.length-1;i++)for(let j=i+1;j<r.length;j++){const q=r.slice(0,i).concat(r.slice(i,j+1).reverse(),r.slice(j+1));if(routeLen(prev,q)<routeLen(prev,r)-1e-6){r=q;imp=true}}}
+    const len=routeLen(prev,r);if(len<bl){bl=len;best=r}});return best}
+function options(C){
+  const pend=C.pend;if(!pend.length)return [];
+  const prev=C.cur?C.cur.l:(C.done.length?C.done[C.done.length-1].l:null);
+  const from=C.cur?C.Q[C.cur.l].e:C.now;const base={from,rate:C.rate,per:S.started?C.perNow:n(S.per),prev};
+  if(!S.started){base.from=toMin(S.ini);base.prev=null;base.rate=C.std}
+  const evalO=arr=>{const s=simulate(arr,base);const kgIn=s.rows.filter(r=>r.e<=C.lim+0.5).reduce((a,r)=>a+r.kg,0);return {...s,kgIn}};
+  const cur0=evalO(pend);const o=[];
+  const sh=shortest(base.prev,pend);
+  if(sh.map(L=>L.l).join()!==pend.map(L=>L.l).join())o.push({id:"corta",t:"Ruta más corta",why:"Menos caminata entre lotes: la cuadrilla cosecha más tiempo.",order:sh,ev:evalO(sh)});
+  const vol=pend.slice().sort((a,b)=>n(b.kg)-n(a.kg));
+  if(vol.map(L=>L.l).join()!==pend.map(L=>L.l).join())o.push({id:"vol",t:"Lotes grandes primero",why:"Asegura la mayor cantidad de kilos temprano, por si el día se corta.",order:vol,ev:evalO(vol)});
+  const small=pend.slice().sort((a,b)=>n(a.kg)-n(b.kg));
+  if(small.map(L=>L.l).join()!==pend.map(L=>L.l).join())o.push({id:"small",t:"Lotes pequeños primero",why:"Cierra más lotes completos antes; útil para frecuencia de cosecha y sobremadura.",order:small,ev:evalO(small)});
+  // ajustar a la hora límite
+  const bestBase=o.length?o.reduce((a,b)=>b.ev.fin<a.ev.fin?b:a,{order:pend,ev:cur0}):{order:pend,ev:cur0};
+  if(bestBase.ev.fin>C.lim){let arr=bestBase.order.slice();const out=[];while(arr.length>1&&evalO(arr).fin>C.lim){out.unshift(arr.pop())}
+    const ev=evalO(arr);const workLeft=pend.reduce((a,L)=>a+n(L.kg),0);
+    const avail=(C.lim-(S.started?C.now:toMin(S.ini))-bestBase.ev.walk)/60;const needP=avail>0?Math.ceil(workLeft/(avail*base.rate)):null;
+    o.push({id:"lim",t:"Terminar antes de la hora límite",why:`Con ${base.per} personas no alcanza. Opciones: dejar para mañana ${out.map(L=>L.l).join(", ")} (${f0(out.reduce((a,L)=>a+n(L.kg),0))} kg)${needP?`, o tener unas ${needP} personas (${needP-base.per>0?"+"+(needP-base.per):"igual"})`:""}.`,order:arr,out,ev,needP})}
+  return {base:cur0,opts:o}
+}
+
+/* ---------- apoyo al otro grupo ---------- */
+function otroTimeline(){const O=S.otro;const R0=n(O.per)*n(O.rend);const now=nowMin();if(!O.lots.length||R0<=0)return [];
+  const rows=[];let t=toMin(O.ini),prev=null,start=0;
+  if(O.pos&&O.pos.idx!=null&&O.lots[O.pos.idx]){/* avance real informado: lotes antes de pos ya hechos */
+    for(let i=0;i<O.pos.idx;i++)rows.push({l:O.lots[i].l,kg:n(O.lots[i].kg),s:null,e:toMin(O.pos.since),done:true});
+    const L=O.lots[O.pos.idx];const s0=toMin(O.pos.since);const e0=s0+n(L.kg)/R0*60;rows.push({l:L.l,kg:n(L.kg),s:s0,e:Math.max(e0,now),done:false});t=Math.max(e0,now);prev=L.l;start=O.pos.idx+1}
+  for(let i=start;i<O.lots.length;i++){const L=O.lots[i];const w=prev?walkMin(prev,L.l):0;const s0=t+w;const e0=s0+n(L.kg)/R0*60;rows.push({l:L.l,kg:n(L.kg),s:s0,e:e0,done:false});t=e0;prev=L.l}
+  return rows}
+function apoyo(C){
+  const O=S.otro;const tl=otroTimeline();if(!tl.length)return null;
+  const otroFin=tl[tl.length-1].e;
+  const lastMine=C.cur?C.cur.l:(C.pend.length?C.pend[C.pend.length-1].l:(C.done.length?C.done[C.done.length-1].l:null));
+  const myLoc=C.pend.length?C.pend[C.pend.length-1].l:lastMine;
+  const T=Math.max(C.now,C.fin);/* hora en que mi cuadrilla queda libre */
+  const myPer=S.started?C.perNow:n(S.per);const eff=(C.ro||C.std)/(C.std||1);
+  const RO=n(O.per)*n(O.rend),RM=myPer*n(O.rend)*eff;
+  if(T>=otroFin-5)return {T,otroFin,tl,none:true,myPer,RM,RO};
+  // estado del otro grupo en T
+  let X=null,r=0;const pool=[];
+  tl.forEach(row=>{if(row.done||row.e<=T)return;if(row.s!=null&&row.s<=T){X=row;r=n(row.kg)*(row.e-T)/(row.e-row.s)}else pool.push(row)});
+  const lastO=X?X.l:(tl.filter(x=>x.e<=T).slice(-1)[0]||{}).l||null;
+  const sim=cand=>{const taken=new Set();const Oc={free:X?T+r/RO*60:T,loc:lastO},M={free:T,loc:myLoc,walk:0,seq:[]};
+    if(cand.joint){const A=T+walkMin(myLoc,X.l);if(A>=Oc.free)return null;const r2=r-RO*(A-T)/60;const f=A+r2/(RO+RM)*60;Oc.free=f;M.free=f;M.loc=X.l;M.walk+=walkMin(myLoc,X.l);M.seq.push(X.l+" (junto)")}
+    else{const w=walkMin(myLoc,cand.l);taken.add(cand.l);M.walk+=w;M.free=T+w+n(cand.kg)/RM*60;M.loc=cand.l;M.seq.push(cand.l)}
+    let guard=0;while(pool.some(p=>!taken.has(p.l))&&guard++<50){const useO=Oc.free<=M.free;
+      if(useO){const nx=pool.find(p=>!taken.has(p.l));taken.add(nx.l);Oc.free+=walkMin(Oc.loc,nx.l)+n(nx.kg)/RO*60;Oc.loc=nx.l}
+      else{let nx=null,bd=1e12;pool.forEach(p=>{if(taken.has(p.l))return;const d=walkMin(M.loc,p.l);if(d<bd){bd=d;nx=p}});taken.add(nx.l);M.walk+=bd;M.free+=bd+n(nx.kg)/RM*60;M.loc=nx.l;M.seq.push(nx.l)}}
+    return {fin:Math.max(Oc.free,M.free),finO:Oc.free,finM:M.free,walk:M.walk,seq:M.seq,arr:T+(cand.joint?walkMin(myLoc,X.l):walkMin(myLoc,cand.l))}};
+  const cands=[];if(X)cands.push({joint:true,l:X.l,kg:r});pool.forEach(p=>cands.push(p));
+  const res=cands.map(c=>({c,ev:sim(c)})).filter(x=>x.ev).sort((a,b)=>a.ev.fin-b.ev.fin||a.ev.walk-b.ev.walk);
+  return {T,otroFin,tl,X,r,pool,res,myLoc,myPer,RM,RO}}
+
+/* ---------- decisiones ---------- */
+function decisions(C){const d=[];
+  if(!S.started){d.push(["info","Revise la ruta inicial y toque “Empezar el día” cuando la cuadrilla llegue al primer lote."]);return d}
+  if(!C.cur&&C.done.length&&C.pend.length&&!S.pausa){const ld=C.done[C.done.length-1],nx=C.pend[0];const esp=ld.e+walkMin(ld.l,nx.l);if(C.now-esp>20)d.push(["warn",`${esc(ld.l)} terminó a las ${minTo(ld.e)} y no hay hora de inicio de ${esc(nx.l)}. Las horas se calculan como si hubiera empezado ${minTo(esp)}. Toque “Llegamos: iniciar ${esc(nx.l)}” y ponga la hora real.`])}
+  if(C.cur){const q=C.Q[C.cur.l];if(q&&C.now-(C.cur.s+(C.P[C.cur.l]?C.P[C.cur.l].e-C.P[C.cur.l].s:0))>120)d.push(["warn",`${esc(C.cur.l)} sigue abierto desde ${minTo(C.cur.s)}. Si ya terminó, toque “Terminar ${esc(C.cur.l)}” y ponga la hora real de fin.`])}
+  {const E=estState(C);const fl=[0,1,2,3].filter(i=>E.falta[i]>0);if(fl.length)d.push(["bad",`Faltan estuches para la ruta: ${fl.map(i=>`${PRES[i].n} ${f0(E.falta[i])}${E.short[i]&&E.short[i].at!=null?` (alcanzan hasta ${minTo(E.short[i].at)})`:""}`).join(" · ")}. Pida a bodega (pestaña Estuches).`])}
+  if(S.pausa)d.push(["warn",`En pausa desde ${minTo(S.pausa.a)} (${esc(S.pausa.why)}). El tiempo de pausa no cuenta en el ritmo.`]);
+  if(C.ro){const r=C.ro/C.std;if(r<0.85)d.push(["bad",`Los lotes están tomando ${Math.round((1/r-1)*100)}% más tiempo del planeado (equivale a ${f1(C.ro)} kg/h por persona, plan ${f1(C.std)}). Puede que los lotes tengan más fruta que lo estimado o que falte gente. Las horas ya se recalcularon con este ritmo.`]);
+    else if(r>1.15)d.push(["ok",`Los lotes se están cosechando ${Math.round((1-1/r)*100)}% más rápido de lo planeado.`])}
+  else d.push(["info","Al terminar el primer lote, la proyección se ajusta con los tiempos reales de campo."]);
+  if(C.pend.length||C.cur){const late=C.fin-C.lim;
+    if(late>5){d.push(["bad",`Proyección: termina ${minTo(C.fin)}, ${dur(late)} después de la hora límite. Sume personas (vea el cuadro de personas) o cambie el orden de los lotes en Ruta.`])}
+    else d.push(["ok",`Proyección: termina ${minTo(C.fin)} (límite ${S.lim}).`]);
+    const vs=C.fin-C.planFin;if(Math.abs(vs)>10)d.push([vs>0?"warn":"ok",`Va ${dur(Math.abs(vs))} ${vs>0?"atrasado":"adelantado"} frente a la ruta inicial.`])}
+  else d.push(["ok","Todos los lotes terminados."]);
+  return d}
+
+/* ---------- render ---------- */
+function gantt(rows,C,mode){
+  const all=[];rows.forEach(r=>{all.push(r.ps,r.pe,r.rs,r.re,r.js,r.je)});const vals=all.filter(v=>v!=null);vals.push(C.lim);if(mode==="live")vals.push(C.fin);
+  if(!vals.length)return"";let a=Math.floor((Math.min(...vals)-10)/60)*60,b=Math.ceil((Math.max(...vals)+10)/60)*60;if(b-a<120)b=a+120;
+  const X=v=>((v-a)/(b-a)*100).toFixed(2)+"%";const W=(s,e)=>(Math.max(0.6,(e-s)/(b-a)*100)).toFixed(2)+"%";
+  const stp=(b-a)>480?120:60;let h=`<div class="g-axis">${Array.from({length:Math.floor((b-a)/stp)+1},(_,i)=>`<span style="left:${((i*stp)/(b-a)*100).toFixed(2)}%">${minTo(a+i*stp).slice(0,2)}h</span>`).join("")}</div>`;
+  rows.forEach(r=>{h+=`<div class="g-row"><b>${esc(r.l)}</b><div class="g-track">${r.ps!=null?`<div class="g-bar plan" style="left:${X(r.ps)};width:${W(r.ps,r.pe)}"></div>`:""}${r.rs!=null?`<div class="g-bar real" style="left:${X(r.rs)};width:${W(r.rs,r.re)}"></div>`:""}${r.js!=null?`<div class="g-bar proj" style="left:${X(r.js)};width:${W(r.js,r.je)}"></div>`:""}${mode==="live"?`<div class="g-now" style="left:${X(C.fin)}"></div>`:""}<div class="g-lim" style="left:${X(C.lim)}"></div></div></div>`});
+  h+=`<div class="legend"><span><i style="background:var(--plan)"></i>Plan</span>${mode==="live"?`<span><i style="background:var(--esp)"></i>Real</span><span><i style="background:repeating-linear-gradient(90deg,var(--esp) 0 6px,transparent 6px 10px)"></i>Proyección</span><span><i style="background:var(--ink);width:3px"></i>${C.cur||C.pend.length?"Fin cosecha (aprox.)":"Fin cosecha"} ${minTo(C.fin)}</span>`:""}<span><i style="background:var(--bad);width:3px"></i>Hora límite</span></div>`;
+  return h}
+/* ---------- gente: mano de obra necesaria ---------- */
+function gNeed(C){const now=C.now;const rate=S.started?C.rate:C.std;const pz=n(S.gPz??0),ant=n(S.gAnt??30),dev=n(S.gDev??25);
+  const meta0=S.gMeta||S.lim;let meta=toMin(meta0);
+  let kg=0,walk=0,start,per;
+  if(!S.started){start=toMin(S.ini);per=n(S.per);kg=S.lots.reduce((a,L)=>a+n(L.kg),0);walk=S.lots.reduce((a,L,i)=>a+(i?walkMin(S.lots[i-1].l,L.l):0),0)}
+  else{per=C.perNow;const cur=C.cur;
+    if(cur){kg+=Math.max(0,n(cur.kg)-personHours(cur.s,now)*rate);start=now}
+    else start=C.done.length?C.done[C.done.length-1].e:now;
+    C.pend.forEach(L=>{kg+=n(L.kg);const q=C.Q[L.l];walk+=q?(q.w||0):0})}
+  if(meta<start-360)meta+=1440;
+  const metaRec=meta-ant;
+  const needBy=t=>{const H=(t-start-walk-pz)/60;return kg<=0?0:H>0&&rate>0?Math.ceil(kg/(rate*H)):Infinity};
+  const fin=p=>p>0&&rate>0?start+walk+pz+kg/(p*rate)*60:Infinity;
+  return {rate,pz,ant,meta,metaRec,meta0,kg,walk,start,per,H:(meta-start-walk-pz)/60,need:(()=>{const b=needBy(metaRec);return isFinite(b)&&b>0?Math.ceil(b*(1+dev/100)):b})(),needBase:needBy(metaRec),dev,needMin:needBy(meta),fin,done:S.started&&!C.cur&&!C.pend.length}}
+function renderGente(C){const g=gNeed(C);const act=document.activeElement;
+  if(act!==$("gMeta"))$("gMeta").value=g.meta0;if(act!==$("gPz"))$("gPz").value=g.pz;if(act!==$("gAnt"))$("gAnt").value=g.ant;if(act!==$("gDev"))$("gDev").value=g.dev;
+  const sob=isFinite(g.need)?g.per-g.need:-Infinity;const pl=k=>k===1?"persona":"personas";
+  if(g.done){$("gHero").innerHTML=`<div class="lbl">Personas</div><div class="end ok">Libres ${g.per}<small>todos los lotes terminados</small></div><div class="note" style="margin-top:4px">Pueden ir a apoyar otra actividad.</div>`}
+  else{const rng=isFinite(g.need)?`<div class="note" style="margin-top:6px">${g.dev&&g.needBase>0?`${g.needBase} calculadas + ${g.dev}% de desviación · `:""}terminan aprox. <b>${minTo(g.fin(g.need))}</b>${isFinite(g.needMin)&&g.needMin<g.need?` · con menos de ${g.needMin} no alcanzan a las ${esc(g.meta0)}`:""}</div>`:"";
+    $("gHero").innerHTML=`<div class="lbl">Personas para el resto de la jornada · hasta ${esc(g.meta0)}</div><div class="end ${sob>=0?"ok":"bad"}">${!isFinite(g.need)?"—":sob>0?`Sobran ${sob}`:sob===0?"Justo":`Faltan ${-sob}`}<small>${isFinite(g.need)?`necesita ${g.need}`:"no alcanza el tiempo"}</small></div>${rng}
+    <div class="note" style="margin-top:4px">${!isFinite(g.need)?`No queda tiempo para cosechar lo que falta antes de ${minTo(g.metaRec)}. Revise la hora de fin de jornada o la ruta.`:sob>0?`Puede enviar <b>${sob}</b> ${pl(sob)} a otra actividad.`:sob===0?"No sobra gente.":`Con ${g.per} terminan aprox. ${minTo(g.fin(g.per))}.`}</div>`}
+  $("gInfo").hidden=g.done;$("gInfo").innerHTML=`<div class="note">Faltan ≈ <b>${f0(g.kg)} kg</b> por cosechar${C.pend.length?` (${C.pend.map(L=>esc(L.l)).join(", ")}${C.cur?" + resto de "+esc(C.cur.l):""})`:C.cur?` (resto de ${esc(C.cur.l)})`:""} · caminata ${dur(g.walk)}${g.pz?` · pausas ${dur(g.pz)}`:""} · desde ${minTo(g.start)}<br>Ritmo ${f1(g.rate)} kg/h por persona ${S.started&&C.ro?"(según tiempos reales)":"(del plan)"}</div>`;
+  const kmax=g.done?g.per:Math.max(0,g.per-1);let k=S.gK==null?(g.done?g.per:Math.max(0,isFinite(sob)?sob:0)):S.gK;k=Math.min(Math.max(0,k),kmax);
+  const col=f=>f<=g.metaRec?"--ok":f<=g.meta?"--warn":"--bad";
+  $("gK").textContent=k;const fk=g.fin(g.per-k);
+  $("gKNote").innerHTML=g.done?`Quedan ${g.per-k}`:`Quedan ${g.per-k} → terminan aprox. <strong style="color:var(${col(fk)})">${isFinite(fk)?minTo(fk):"—"}</strong>`;
+  $("gSend").hidden=!S.started;$("gSend").disabled=k<=0;$("gSend").textContent=k>0?`Registrar salida de ${k} ${pl(k)}`:"Registrar salida";
+  let rows=[];if(!g.done&&g.kg>0){const set=new Set([g.per]);if(isFinite(g.need)){const lo=Math.max(1,(isFinite(g.needMin)?g.needMin:g.need)-2),hi=Math.min(Math.max(g.per,g.need),g.need+4);for(let p=lo;p<=hi;p++)set.add(p)}else for(let p=g.per;p>Math.max(0,g.per-6);p--)set.add(p);rows=[...set].sort((x,y)=>y-x)}
+  $("gT").innerHTML=!rows.length?"":`<tr><th>Personas</th><th>Envía</th><th>Fin aprox.</th><th>Estado</th></tr>`+rows.map(p=>{const f=g.fin(p);const tag=f<=g.metaRec?`a tiempo (${dur(g.meta-f)} antes)`:f<=g.meta?`justo (${dur(g.meta-f)} antes)`:`tarde +${dur(f-g.meta)}`;return `<tr${p===g.need?' style="font-weight:700"':""}><td>${p}${p===g.need?" ✓":""}</td><td>${g.per-p>0?g.per-p:p>g.per?"+"+(p-g.per):"0"}</td><td>${minTo(f)}</td><td style="color:var(${col(f)})">${tag}</td></tr>`}).join("")}
+/* ---------- estuches según pedido ---------- */
+const PRES=[{n:"90g",g:90,cx:12},{n:"125g",g:125,cx:12},{n:"150g",g:150,cx:12},{n:"250g",g:250,cx:6}];
+const A4=v=>{const a=[0,0,0,0];if(Array.isArray(v))v.forEach((x,i)=>{if(i<4)a[i]=n(x)});return a};
+const sum4=a=>a.reduce((x,y)=>x+y,0);
+const mg=()=>n(S.estMg??5)/100;
+function pedRows(){if(!Array.isArray(S.ped)||!S.ped.length)S.ped=[[0,0,0,0],[0,0,0,0],[0,0,0,0]];return S.ped}
+function pedTot(){return pedRows().reduce((a,v)=>a.map((x,i)=>x+n(v[i])),[0,0,0,0])}
+const entOf=L=>A4(L.ent),sobOf=L=>A4(L.sob),usedOf=L=>entOf(L).map((x,i)=>Math.max(0,x-sobOf(L)[i]));
+function presAct(){const t=pedTot();const set=new Set();t.forEach((x,i)=>{if(x>0)set.add(i)});S.lots.forEach(L=>entOf(L).forEach((x,i)=>{if(x>0)set.add(i)}));(S.estRec||[]).forEach(r=>A4(r.q).forEach((x,i)=>{if(x>0)set.add(i)}));return set.size?[...set].sort():[0,1,2,3]}
+function pedAlloc(){const pct=n(S.pctC??80)/100;const seg=[],vt=[];let c=0;
+  pedRows().forEach((v,vi)=>{const st=c;PRES.forEach((p,pi)=>{const u=n(v[pi]),kg=u*p.g/1000;if(kg>0)seg.push({pi,kpe:p.g/1000,s:c,f:c+kg});c+=kg});vt.push({vi,s:st,f:c,kg:c-st})});
+  const T=c;const F=(x,pi)=>seg.filter(z=>z.pi===pi).reduce((a,z)=>a+Math.max(0,Math.min(x,z.f)-z.s)/z.kpe,0);
+  const M={};let cum=0;S.lots.forEach(L=>{const kc=n(L.kg)*pct;const prev=cum;cum+=kc;const est=PRES.map((p,pi)=>Math.round(F(cum,pi))-Math.round(F(prev,pi)));
+    const kp=Math.min(cum,T)-Math.min(prev,T);const vs=vt.filter(v=>v.kg>0);let ab="Fuera del pedido";if(kp>0){const v1=1+vs.filter(v=>v.f<=prev).length,v2=1+vs.filter(v=>v.f<Math.min(cum,T)).length;ab=v1===v2?"Viaje "+v1:"Viajes "+v1+"–"+v2}
+    M[L.l]={est,kc,kp,ks:kc-kp,ab}});
+  return {M,T,kcTot:cum}}
+const estNeed=L=>{const a=pedAlloc().M[L.l];return a?a.est.map(x=>Math.ceil(x*(1+mg()))):[0,0,0,0]};
+const estNeedT=L=>sum4(estNeed(L));
+const estUsed=L=>sum4(usedOf(L));
+const cajas=(x,pi)=>Math.ceil(x/PRES[pi].cx);
+const estTxt=(a,idx)=>(idx||[0,1,2,3]).filter(i=>a[i]>0).map(i=>`${PRES[i].n} ${f0(a[i])}`).join(" · ")||"–";
+function estState(C){const rec=(S.estRec||[]).reduce((a,r)=>a.map((x,i)=>x+A4(r.q)[i]),[0,0,0,0]);
+  const ent=S.lots.reduce((a,L)=>a.map((x,i)=>x+entOf(L)[i]),[0,0,0,0]);const sob=S.lots.reduce((a,L)=>L.e!=null?a.map((x,i)=>x+sobOf(L)[i]):a,[0,0,0,0]);
+  const mano=rec.map((x,i)=>x-ent[i]+sob[i]);const used=S.lots.reduce((a,L)=>L.e!=null?a.map((x,i)=>x+usedOf(L)[i]):a,[0,0,0,0]);
+  const need=L=>L===C.cur?estNeed(L).map((x,i)=>Math.max(0,x-entOf(L)[i])):estNeed(L);
+  const order=(C.cur?[C.cur]:[]).concat(C.pend);const cum=[0,0,0,0];const short=[null,null,null,null];
+  order.forEach(L=>{const nd=need(L);nd.forEach((x,i)=>{if(short[i]==null&&x>0&&cum[i]+x>mano[i]){const q=C.Q[L.l];let at=null;if(q){const fr=x>0?Math.max(0,(mano[i]-cum[i])/x):0;at=q.s+(q.e-q.s)*fr}short[i]={l:L.l,at}}cum[i]+=x})});
+  const falta=cum.map((x,i)=>Math.max(0,x-mano[i]));
+  return {rec,ent,sob,mano,used,needRest:cum,falta,faltaT:sum4(falta),short,need}}
+function estNextLot(C){return C.cur||C.pend[0]||null}
+function renderEst(C){const E=estState(C);const idx=presAct();const PA=pedAlloc();const pt=pedTot();
+  const tbl=`<div class="scroll"><table class="t" id="estSum" style="margin-top:6px"><tr><th></th><th>Pedido</th><th>Mano</th><th>Ruta</th><th>Usado</th></tr>${idx.map(i=>`<tr><td><b>${PRES[i].n}</b></td><td>${f0(pt[i])}</td><td style="${E.mano[i]<0?"color:var(--bad)":""}">${f0(E.mano[i])}</td><td style="color:var(${E.falta[i]>0?"--bad":"--ok"});font-weight:700">${E.falta[i]>0?"faltan "+f0(E.falta[i]):"✓ alcanza"}</td><td>${f0(E.used[i])}</td></tr>`).join("")}</table></div>`;
+  const notes=[];
+  if(!sum4(pt))notes.push(`<span>Ingrese abajo el pedido del día para calcular los estuches de cada lote.</span>`);
+  else{const dif=PA.kcTot-PA.T;if(dif<-0.5)notes.push(`<span style="color:var(--bad)">La ruta da ≈ ${f0(PA.kcTot)} kg comerciales y el pedido pide ${f0(PA.T)} kg: faltan ${f0(-dif)} kg de fruta.</span>`);
+    const fuera=S.lots.filter(L=>PA.M[L.l]&&PA.M[L.l].kp<=0).map(L=>L.l);if(fuera.length)notes.push(`<span>Fuera del pedido: ${fuera.map(esc).join(", ")} (no llevar estuches de pedido).</span>`)}
+  idx.forEach(i=>{if(E.falta[i]>0&&E.short[i])notes.push(`<span style="color:var(--bad)"><b>${PRES[i].n}</b>: faltan ${f0(E.falta[i])} (${f0(cajas(E.falta[i],i))} ${cajas(E.falta[i],i)===1?"caja":"cajas"}). Alcanzan hasta ${E.short[i].at!=null?"aprox. <b>"+minTo(E.short[i].at)+"</b> en ":""}${esc(E.short[i].l)}.</span>`)});
+  if(E.mano.some(x=>x<0))notes.push(`<span style="color:var(--bad)">Hay más entregado que recibido: registre los estuches recibidos de bodega.</span>`);
+  $("estCard").innerHTML=`<div class="lbl">Estuches del pedido · ${f0(PA.T)} kg comerciales</div>${tbl}<div class="note" style="margin-top:6px;display:grid;gap:4px">${notes.join("")}</div>
+    <div class="bar" style="margin-top:8px"><button class="btn" id="estRecBtn">+ Recibí estuches</button>${S.lots.length?`<button class="btn primary" id="estEntBtn">Entregar en lote</button>`:""}</div>`;
+  const fa=document.activeElement,fk=fa&&$("pedT").contains(fa)&&fa.dataset.pv!=null?[fa.dataset.pv,fa.dataset.pp]:null;
+  $("pedT").innerHTML=`<tr><th></th>${PRES.map(p=>`<th>${p.n}</th>`).join("")}<th>Kg</th></tr>`+pedRows().map((v,vi)=>`<tr><td>V${vi+1}</td>${PRES.map((p,pi)=>`<td><input type="number" inputmode="numeric" enterkeyhint="done" min="0" data-pv="${vi}" data-pp="${pi}" value="${n(v[pi])||""}" aria-label="Viaje ${vi+1} ${p.n}"></td>`).join("")}<td>${f1(PRES.reduce((a,p,pi)=>a+n(v[pi])*p.g/1000,0))}</td></tr>`).join("")+`<tr><td>Total</td>${pt.map(x=>`<td><b>${f0(x)}</b></td>`).join("")}<td><b>${f1(PA.T)}</b></td></tr>`;
+  if(fk){const el=$("pedT").querySelector(`[data-pv="${fk[0]}"][data-pp="${fk[1]}"]`);if(el)el.focus()}
+  $("estT").innerHTML=S.lots.length?`<tr><th>Lote</th><th>Estuches: necesita / entregado</th></tr>`+S.lots.map((L,i)=>{const done=L.e!=null;const a=PA.M[L.l]||{};const nd=estNeed(L),en=entOf(L);const ix=idx.filter(k=>nd[k]||en[k]);
+    return `<tr><td><b>${esc(L.l)}</b><br><span class="note">${done?"terminado":L.s!=null?"en curso":"pendiente"}<br>${a.ab||""}</span><div style="margin-top:6px">${done?`<button class="btn sm" data-edit="${i}">Corregir</button>`:`<button class="btn sm" data-estent="${i}" aria-label="Entregar estuches en ${esc(L.l)}">+ Entregar</button>`}</div></td><td>${ix.length?ix.map(k=>`<div>${PRES[k].n}: <b>${f0(nd[k])}</b> / <span style="color:var(${en[k]>=nd[k]?"--ok":en[k]?"--warn":"--muted"})">${f0(en[k])}</span></div>`).join("")+`<span class="note">${f0(nd.reduce((s2,x,pi)=>s2+cajas(x,pi),0))} cajas${done&&sum4(sobOf(L))?` · sobr. ${f0(sum4(sobOf(L)))}`:""}</span>`:`<span class="note">sin estuches de pedido</span>`}</td></tr>`}).join(""):`<tr><td class="note">Agregue lotes en Ruta.</td></tr>`;
+  $("estRecList").innerHTML=(S.estRec||[]).length?`<div class="pzl">${S.estRec.map((r,i)=>`<div class="pzr"><b>${estTxt(A4(r.q))}</b><span>a las ${minTo(r.m)}</span><button class="btn sm" data-erdel2="${i}">Quitar</button></div>`).join("")}</div>`:`<p class="note">Aún no registra estuches recibidos.</p>`;
+  const ac=document.activeElement;if(ac!==$("pctC"))$("pctC").value=n(S.pctC??80);if(ac!==$("estMg"))$("estMg").value=n(S.estMg??5)}
+function presFields(pre,vals,idx,lab){return `<div class="fields">${idx.map(i=>`<div class="field"><label for="${pre}${i}">${lab?lab+" ":""}${PRES[i].n}</label><input type="number" inputmode="numeric" enterkeyhint="done" min="0" id="${pre}${i}" value="${vals[i]||""}"></div>`).join("")}</div>`}
+function readP(pre){return [0,1,2,3].map(i=>{const el=$(pre+i);return el?Math.max(0,Math.round(n(el.value))):0})}
+function render(){
+  document.body.classList.toggle("ZA",S.esp==="ZARZAMORA");
+  $("clock").textContent=clkTxt();
+  const C=calc();renderGente(C);renderEst(C);
+  $("hSub").textContent=`${S.esp==="ZARZAMORA"?"Zarzamora":"Frambuesa"} · Grupo ${S.grp||"-"}${S.sup?" · "+S.sup:""}${S.ejemplo?" · ejemplo":""}`;
+  // plan
+  {const end=S.started?C.fin:C.planFin,ok=end<=C.lim;const walkT=S.lots.reduce((a,L,i)=>a+(i?walkMin(S.lots[i-1].l,L.l):0),0);
+   $("planHero").innerHTML=`<div class="lbl">Ruta del día · termina${S.started?` (según avance · plan inicial ${minTo(C.planFin)})`:""}</div><div class="end ${C.plan.length?(ok?"ok":"bad"):""}">${C.plan.length?minTo(end):"—"}<small>${C.plan.length?(ok?"antes del límite "+esc(S.lim):dur(end-C.lim)+" después del límite "+esc(S.lim)):"agregue lotes"}</small></div>
+     <div class="note" style="margin-top:4px">${f0(C.kgTot)} kg · ${S.lots.length} lotes · ${dur(walkT)} caminando</div>
+     <div class="chips"><button class="chip2" data-cfg="1">Inicio <b>${esc(S.ini)}</b></button><button class="chip2" data-cfg="1">Límite <b>${esc(S.lim)}</b></button><button class="chip2" data-cfg="1"><b>${S.per}</b> personas</button><button class="chip2" data-cfg="1"><b>${f1(S.rend)}</b> kg/h</button></div>`;
+   $("planList").innerHTML=S.lots.map((L,i)=>{const locked=L.s!=null;const ri=i>0?routeInfo(S.lots[i-1].l,L.l):null;const wm=i>0?walkMin(S.lots[i-1].l,L.l):0;
+     const p=!S.started?C.P[L.l]:L.e!=null?{s:L.s,e:L.e}:C.Q[L.l]||C.P[L.l];
+     const st=!S.started?"":L.e!=null?"terminado":L.s!=null?"en curso":"aprox.";
+     return `${i>0&&wm?`<div class="tli2"><div></div><div class="rail"></div><div class="wk">${dur(wm)} caminando ${ri.how}</div></div>`:""}<div class="tli2${i===S.lots.length-1?" last":""}"><div class="tm">${p?minTo(p.s):""}<small>${p?minTo(p.e):""}</small></div><div class="rail"><i></i></div>
+       <button class="lot2" data-li="${i}"><div><span class="nm">${esc(L.l)}</span><div class="sub">${p?dur(p.e-p.s):""}${st?" · "+st:""}</div></div><span class="kgc ${n(L.kg)?"":"miss"}">${n(L.kg)?f0(L.kg)+" kg":"Sin kg"}</span></button></div>`}).join("")+
+     `<div class="tli2 last"><div></div><div></div><button class="lot2 addl" id="addLotBtn">+ Agregar lote</button></div>`;}
+  $("kgAllBtn").hidden=!S.lots.some(L=>L.e==null);$("goLive").textContent=S.started?"Día en curso: ver En vivo":"Empezar el día con esta ruta";
+  $("exBox").innerHTML=S.ejemplo?`<div class="d info" style="margin-top:10px"><i>i</i><span>Está viendo un <b>ejemplo</b> (reloj fijo en 08:30*). Las horas no son reales. <br><button class="btn sm primary" id="exReset" style="margin-top:6px">Borrar ejemplo y empezar con mis datos</button></span></div>`:"";
+  // vivo
+  const cur=C.cur;const late=C.fin-C.lim;
+  $("hero").innerHTML=`<div style="display:flex;justify-content:space-between;gap:8px"><span class="note">${S.started?(cur?"Cosechando":"Sin lote en curso"):"Día sin empezar"}</span><span class="st esp">${C.perNow} personas</span></div>
+    <div class="big">${cur?esc(cur.l):(C.pend[0]?"Siguiente: "+esc(C.pend[0].l):"—")}</div>
+    ${cur?`<div class="note">Desde ${minTo(cur.s)} · lleva ${dur(C.now-cur.s-pauseOverlap(cur.s,C.now))} · termina aprox. <b style="color:var(--ink)">${minTo(C.Q[cur.l].e)}</b></div>`:""}
+    <div class="kpis"><div class="k ${C.ro?(C.std/C.ro>1.1?"bad":"ok"):""}"><b>${C.ro?((C.std/C.ro-1)>=0?"+":"−")+Math.abs(Math.round((C.std/C.ro-1)*100))+"%":"—"}</b><span>tiempo vs plan</span></div><div class="k ${S.started?(late>5?"bad":"ok"):""}"><b>${minTo(C.fin)}</b><span>Fin proyectado</span></div><div class="k"><b>${f0(C.kgDone)}</b><span>de ${f0(C.kgTot)} kg</span></div></div>
+    ${(()=>{if(!S.started)return S.lots.length?`<button class="btn primary actbtn" data-act="start">▶ Empezar el día en ${esc(S.lots[0].l)}</button>`:`<button class="btn actbtn" data-act="plan">Armar la ruta primero</button>`;
+      if(cur)return `<button class="btn primary actbtn" data-act="fin" data-i="${S.lots.indexOf(cur)}">■ Terminar ${esc(cur.l)} (registrar hora)</button>`;
+      if(C.pend[0])return `<button class="btn primary actbtn" data-act="go" data-i="${S.lots.indexOf(C.pend[0])}">▶ Llegamos: iniciar ${esc(C.pend[0].l)}</button>`;
+      return `<div class="d ok" style="margin-top:10px"><i>✓</i><span>Todos los lotes terminados. Exporte el CSV en Datos.</span></div>`})()}`;
+  $("decs").innerHTML=decisions(C).map(x=>`<div class="d ${x[0]}"><i>${x[0]==="ok"?"✓":x[0]==="info"?"→":"!"}</i><span>${x[1]}</span></div>`).join("");
+  $("perNow").textContent=C.perNow;$("perNote").textContent=S.started?"Cada cambio queda con su hora":"Se usa al empezar";
+  $("pauseBox").innerHTML=(S.pausa?`<div class="ask">En pausa: ${esc(S.pausa.why)} desde ${minTo(S.pausa.a)}<button class="btn sm" id="resume">Terminar pausa</button></div>`:"")+(S.pauses.length?`<div class="pzl">${S.pauses.map((p,i)=>`<div class="pzr"><b>${esc(p.why)}</b><span>${minTo(p.a)} – ${minTo(p.b)} · ${dur(p.b-p.a)}</span><button class="btn sm" data-pzdel="${i}" aria-label="Quitar pausa">Quitar</button></div>`).join("")}</div>`:"");$("pauseBtn").hidden=!!S.pausa||!S.started;
+  $("liveGantt").hidden=!S.lots.length;
+  $("liveGantt").innerHTML=gantt(S.lots.map(L=>{const p=C.P[L.l],q=C.Q[L.l];return {l:L.l,ps:p?p.s:null,pe:p?p.e:null,rs:L.s!=null?L.s:null,re:L.s!=null?(L.e!=null?L.e:C.now):null,js:L.e==null&&q?Math.max(q.s,L.s!=null?C.now:q.s):null,je:L.e==null&&q?q.e:null}}),C,"live");
+  $("liveList").innerHTML=S.lots.map((L,i)=>{const p=C.P[L.l],q=C.Q[L.l];
+    if(L.e!=null){const real=L.e-L.s;const ph=personHours(L.s,L.e);const dv=p?real-(p.e-p.s):0;
+      return `<div class="card lc done"><span class="nm">${esc(L.l)}</span><span class="note">${minTo(L.s)}–${minTo(L.e)} · ${dur(real)}</span><span class="st ${dv>15?"bad":dv<-15?"ok":"mute"}">${dv>0?"+":""}${dur(dv)}</span>
+        <div class="meta">Plan ${p?dur(p.e-p.s):"-"} · ${f0(ph/((real-pauseOverlap(L.s,L.e))/60||1))} personas prom. · ≈ ${f0(ph*C.std)} kg por tiempo (lote estimado en ${f0(L.kg)} kg)${sum4(entOf(L))?`<br>Estuches usados: ${estTxt(usedOf(L))} · ≈ ${f1(usedOf(L).reduce((a,x,i)=>a+x*PRES[i].g/1000,0))} kg comerciales por estuches`:""}</div>
+        <div class="acts"><button class="btn sm" data-edit="${i}">Corregir</button></div></div>`}
+    if(L.s!=null)return `<div class="card lc cur"><span class="nm">${esc(L.l)}</span><span class="note">desde ${minTo(L.s)}</span><span class="st esp">En curso</span>
+        <div class="meta">Estimado ${f0(L.kg)} kg · termina aprox. ${minTo(q.e)}${p?` (plan ${minTo(p.e)})`:""}<br>Estuches: entregados ${estTxt(entOf(L))} · necesita ${estTxt(estNeed(L))}</div>
+        <div class="acts"><button class="btn primary" data-fin="${i}">Terminar lote</button>${estNeedT(L)?`<button class="btn" data-estent="${i}">+ Estuches</button>`:""}</div></div>`;
+    const first=!C.cur&&C.pend[0]===L;
+    return `<div class="card lc"><span class="nm">${esc(L.l)}</span><span class="note">${q?`${minTo(q.s)}–${minTo(q.e)}`:""}</span><span class="st mute">${S.started?"Pendiente":"Plan"}</span>
+      <div class="meta">${f0(L.kg)} kg est. ${estNeedT(L)?` · estuches ${estTxt(estNeed(L))}`:""}${sum4(entOf(L))?` (entregados ${estTxt(entOf(L))})`:""}${q&&q.w?` · ${dur(q.w)} de caminata antes`:""}${p&&q&&S.started?` · plan ${minTo(p.s)}`:""}</div>
+      ${S.started&&first?`<div class="acts" style="align-items:center">${C.done.length?`<span class="note">Caminando desde ${minTo(C.done[C.done.length-1].e)} · ${dur(C.now-C.done[C.done.length-1].e)}</span>`:""}<button class="btn primary" data-start="${i}">Llegamos: iniciar ${esc(L.l)}</button></div>`:""}</div>`}).join("");
+  // datos
+  if(!$("tab-datos").contains(document.activeElement)){$("cSup").value=S.sup;$("cGrp").value=S.grp;$("cFecha").value=S.fecha;$("cVel").value=S.vel;$("cFix").value=S.fix}
+  document.querySelectorAll("[data-esp]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.esp===S.esp)));
+  $("expState").innerHTML=S.exported?`<div class="d ok"><i>✓</i><span>CSV exportado a las ${esc(S.exported)}.</span></div>`:(S.started?`<div class="d bad"><i>!</i><span>Hoy no se ha exportado el CSV.</span></div>`:"");
+  const WF=walkFactor();$("walkInfo").innerHTML=WF?`<div class="d info"><i>→</i><span>Caminata real medida en ${WF.k} traslado${WF.k>1?"s":""}: ${f0(WF.real)} min contra ${f0(WF.pred)} min calculados. Las proyecciones usan ese ajuste (${Math.round(WF.f*100)}%).</span></div>`:`<p class="note">Cuando la cuadrilla termine un lote y toque “Llegamos” en el siguiente, la app mide la caminata real y ajusta los tiempos sola.</p>`;
+  $("perfT").innerHTML=`<tr><th>Lote</th><th>Inicio</th><th>Fin</th><th>Horas</th><th>Personas</th><th>≈ Kg</th><th>vs plan</th></tr>`+(C.done.map(L=>{const ph=personHours(L.s,L.e);const hrs=(L.e-L.s-pauseOverlap(L.s,L.e))/60;const p=C.P[L.l];
+    return `<tr><td><b>${esc(L.l)}</b></td><td>${minTo(L.s)}</td><td>${minTo(L.e)}</td><td>${f1(hrs)}</td><td>${hrs>0?f0(ph/hrs):"-"}</td><td>${f0(ph*C.std)}</td><td>${p?(L.e-L.s-(p.e-p.s)>0?"+":"")+dur(L.e-L.s-(p.e-p.s)):"-"}</td></tr>`}).join("")||`<tr><td colspan="7">Sin lotes terminados.</td></tr>`);
+}
+
+/* ---------- sheet ---------- */
+function openSheet(h){$("sheetIn").innerHTML=h;$("sheet").hidden=false;$("scrim").hidden=false;$("sheetIn").querySelectorAll("input[type=time]").forEach(inp=>{if(inp.id)inp.insertAdjacentHTML("afterend",`<div class="tq"><button type="button" class="btn sm" data-tq="now" data-for="${inp.id}">Ahora</button><button type="button" class="btn sm" data-tq="-5" data-for="${inp.id}" aria-label="Restar 5 minutos">−5</button><button type="button" class="btn sm" data-tq="5" data-for="${inp.id}" aria-label="Sumar 5 minutos">+5</button></div>`)});$("sheetIn").scrollTop=0}
+function closeSheet(){$("sheet").hidden=true;$("scrim").hidden=true}
+$("scrim").addEventListener("click",closeSheet);
+
+/* ---------- eventos ---------- */
+function toast(t){document.querySelectorAll(".toast").forEach(x=>x.remove());const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1700)}
+function go(t){if(t==="gente")t="est";document.querySelectorAll("section[data-tab]").forEach(s=>s.hidden=s.dataset.tab!==t);document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-current",String(b.dataset.go===t)));window.scrollTo(0,0);try{localStorage.setItem(KEY+"-tab",t)}catch(e){}}
+document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{go(b.dataset.go);render()}));
+const upd=(fn)=>{fn();S.ejemplo=S.ejemplo&&false;save();render()};
+function cfgSheet(){openSheet(`<h3 style="margin-top:0">Ajustar el plan</h3><div class="sfields">
+  <div class="field"><label for="cIni">Hora de inicio</label><input type="time" id="cIni" value="${esc(S.ini)}"></div>
+  <div class="field"><label for="cLim">Hora límite</label><input type="time" id="cLim" value="${esc(S.lim)}"></div>
+  <div class="field"><label for="cPer">Personas</label><input type="number" inputmode="numeric" enterkeyhint="done" id="cPer" value="${S.per}"></div>
+  <div class="field"><label for="cRend">kg/h por persona</label><input type="number" inputmode="decimal" step="0.1" id="cRend" value="${S.rend}"></div></div>
+  <div class="bar"><button class="btn primary" id="shDone">Listo</button></div>`)}
+function lotSheet(i){const L=S.lots[i];const locked=L.s!=null;openSheet(`<h3 style="margin-top:0">${esc(L.l)}</h3>
+  <div class="field"><label for="lkg">Kilos estimados</label><input type="number" inputmode="decimal" id="lkg" data-li="${i}" value="${L.kg||""}"></div>
+  <div class="bar"><button class="btn" data-mv="-1" data-i="${i}" ${locked||i===0?"disabled":""}>↑ Antes</button><button class="btn" data-mv="1" data-i="${i}" ${locked||i===S.lots.length-1?"disabled":""}>↓ Después</button><button class="btn danger" data-rm="${i}" ${locked?"disabled":""}>Quitar</button></div>
+  <div class="bar"><button class="btn primary" id="shDone">Listo</button></div>`)}
+$("planHero").addEventListener("click",e=>{if(e.target.closest("[data-cfg]"))cfgSheet()});
+$("planList").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  if(b.id==="addLotBtn"){openPicker();return}
+  if(b.dataset.li!=null)lotSheet(+b.dataset.li)});
+function kgAllSheet(){const rows=S.lots.map((L,i)=>L.e!=null?"":`<div class="kgrow"><label for="kga${i}"><b>${esc(L.l)}</b>${L.s!=null?' <span class="note">en curso</span>':""}</label><input type="number" inputmode="decimal" enterkeyhint="next" id="kga${i}" data-kga="${i}" min="0" value="${n(L.kg)||""}" placeholder="kg"></div>`).join("");
+  openSheet(`<h3 style="margin-top:0">Kilos estimados por lote</h3><p class="note" style="margin:-4px 0 8px">Escriba los kilos y toque Siguiente en el teclado para pasar al otro lote.</p><div class="kgall">${rows||'<p class="note">No hay lotes pendientes.</p>'}</div><div class="bar"><button class="btn primary" id="kgaOk">Guardar kilos</button><button class="btn" id="finCancel">Cancelar</button></div>`);
+  setTimeout(()=>{const f=$("sheetIn").querySelector("[data-kga]");if(f&&!n(f.value))f.focus()},80)}
+function openPicker(){const inR=new Set(S.lots.map(L=>L.l));const ls=MAPA.filter(m=>!inR.has(m[0])&&(!m[2]||m[2]===S.esp)).map(m=>m[0]).sort();
+  openSheet(`<h3 style="margin-top:0">Agregar lotes</h3><p class="note" style="margin:-4px 0 8px">Toque los lotes en el orden de cosecha.</p><div class="pick" id="pickGrid">${ls.map(l=>`<button class="btn sm" data-addl="${esc(l)}">${esc(l)}</button>`).join("")}</div>
+  <div class="bar" style="align-items:center"><input type="text" id="otherLot" placeholder="Otro lote" style="max-width:140px;text-transform:uppercase"><button class="btn sm" id="addOther">Agregar</button></div><div class="bar"><button class="btn primary" id="shDone">Listo</button></div>`)}
+$("sheet").addEventListener("change",e=>{const t=e.target;const m={cIni:"ini",cLim:"lim"};
+  if(m[t.id])S[m[t.id]]=t.value;else if(t.id==="cPer")S.per=n(t.value);else if(t.id==="cRend")S.rend=n(t.value);
+  else if(t.id==="lkg")S.lots[+t.dataset.li].kg=n(t.value);else return;if(!S.started)S.plan=null;save();render()});
+$("sheet").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  if(b.id==="shDone"){const a=document.activeElement;if(a&&a.blur)a.blur();const fromPick=!!$("pickGrid");closeSheet();render();if(fromPick&&S.lots.some(L=>L.s==null&&!n(L.kg)))kgAllSheet();return}
+  if(b.dataset.addl){S.lots.push({l:b.dataset.addl,kg:0});b.remove();if(!S.started)S.plan=null;save();render();toast(b.dataset.addl+" agregado");return}
+  if(b.id==="addOther"){const v=$("otherLot").value.trim().toUpperCase();if(v){S.lots.push({l:v,kg:0});$("otherLot").value="";save();render();toast(v+" agregado")}return}
+  if(b.dataset.mv!=null){const i=+b.dataset.i,j=i+Number(b.dataset.mv);if(j<0||j>=S.lots.length||S.lots[j].s!=null)return;[S.lots[i],S.lots[j]]=[S.lots[j],S.lots[i]];if(!S.started)S.plan=null;save();render();lotSheet(j);return}
+  if(b.dataset.rm!=null){S.lots.splice(+b.dataset.rm,1);if(!S.started)S.plan=null;save();closeSheet();render()}});
+
+$("goLive").addEventListener("click",()=>{if(!S.started){if(!S.lots.length){toast("Agregue lotes primero");return}
+  if(S.lots.some(L=>!n(L.kg))){toast("Faltan kilos en algunos lotes");kgAllSheet();return}
+  openSheet(`<h3 style="margin-top:0">Empezar el día en ${esc(S.lots[0].l)}</h3><p class="note" style="margin:-4px 0 8px">Ponga la hora en que la cuadrilla empezó a cosechar y cuántas personas llegaron.</p><div class="fields"><div class="field"><label for="dayT">Hora de inicio</label><input type="time" id="dayT" value="${minTo(Math.floor(nowMin()))}"></div><div class="field"><label for="dayP">Personas</label><input type="number" inputmode="numeric" enterkeyhint="done" id="dayP" min="1" value="${S.per}"></div></div><div class="bar"><button class="btn primary" id="dayOk">Empezar</button><button class="btn" id="finCancel">Cancelar</button></div>`);return}
+  go("vivo");render()});
+$("sheet").addEventListener("click",e=>{if(e.target.id!=="dayOk")return;const tv=$("dayT").value,pv=Math.round(n($("dayP").value));if(!tv){toast("Ponga la hora de inicio");return}if(pv<1){toast("Ponga las personas");return}
+  S.per=pv;const t0=toMin(tv);
+  if(S.ejemplo){S.lots.forEach(L=>{delete L.s;delete L.e;delete L.kgR;delete L.kgP;delete L.ent;delete L.sob});S.perLog=[];S.pauses=[];S.log=[];S.estRec=[];S.ejemplo=false}
+  S.plan=simulate(S.lots,{from:toMin(S.ini),rate:n(S.rend),per:n(S.per),prev:null}).rows;S.started=true;const L=S.lots[0];L.s=t0;logE("inicio",{lote:L.l,per:S.per,hora:minTo(t0)});closeSheet();save();toast("Día iniciado en "+L.l+" a las "+minTo(t0));
+  go("vivo");render()});
+document.querySelectorAll("[data-p]").forEach(b=>b.addEventListener("click",()=>{const now=Math.floor(nowMin());const v=Math.max(0,perAt(now)+Number(b.dataset.p));
+  if(!S.started){S.per=v;save();render();return}const last=S.perLog[S.perLog.length-1];if(last&&last.m===now)last.v=v;else S.perLog.push({m:now,v});logE("personas",{v});save();render()}));
+$("hero").addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b)return;const a=b.dataset.act;
+  if(a==="plan"){go("plan");render();return}
+  if(a==="start"){$("goLive").click();return}
+  const tmp=document.createElement("button");if(a==="fin")tmp.dataset.fin=b.dataset.i;if(a==="go")tmp.dataset.start=b.dataset.i;$("liveList").appendChild(tmp);tmp.click();tmp.remove()});
+$("liveList").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.fin!=null){const i=+b.dataset.fin,L=S.lots[i];openSheet(`<h3 style="margin-top:0">Terminar ${esc(L.l)}</h3><p class="note" style="margin:-4px 0 8px">Inició ${minTo(L.s)}. Ponga la hora en que terminó la cuadrilla.</p><div class="field" style="max-width:200px"><label for="finT">Hora de fin</label><input type="time" id="finT" value="${minTo(nowMin())}"></div><p class="note" id="finEst"></p>${sum4(entOf(L))?`<p class="note" style="margin:6px 0 2px"><b>Estuches que sobraron</b> (entregados ${estTxt(entOf(L))})</p>${presFields("finS",sobOf(L),[0,1,2,3].filter(i=>entOf(L)[i]>0))}`:""}<div class="bar"><button class="btn primary" id="finOk" data-i="${i}">Guardar fin</button><button class="btn" id="finCancel">Cancelar</button></div>`);finEst(i)}
+  if(b.dataset.start!=null&&!b.dataset.quick){const i=+b.dataset.start,L=S.lots[i];const prev=S.lots.slice(0,i).filter(x=>x.e!=null).pop();openSheet(`<h3 style="margin-top:0">Iniciar ${esc(L.l)}</h3><p class="note" style="margin:-4px 0 8px">${prev?`${esc(prev.l)} terminó ${minTo(prev.e)}. `:""}${prev?"Viene con esa hora; cámbiela si empezaron más tarde.":"Ponga la hora en que la cuadrilla empezó a cosechar."}</p><div class="field" style="max-width:200px"><label for="stT">Hora de inicio</label><input type="time" id="stT" value="${minTo(prev?prev.e:nowMin())}"></div><div class="bar"><button class="btn primary" id="stOk" data-i="${i}">Guardar inicio</button><button class="btn" id="finCancel">Cancelar</button></div>`)}
+  if(b.dataset.edit!=null){const i=+b.dataset.edit,L=S.lots[i];openSheet(`<h3 style="margin-top:0">Corregir ${esc(L.l)}</h3><div class="fields"><div class="field"><label for="edS">Inicio</label><input type="time" id="edS" value="${minTo(L.s)}"></div><div class="field"><label for="edE">Fin</label><input type="time" id="edE" value="${minTo(L.e)}"></div></div><p class="note" style="margin:8px 0 2px"><b>Estuches entregados</b></p>${presFields("edN",entOf(L),presAct())}<p class="note" style="margin:8px 0 2px"><b>Estuches sobrantes</b></p>${presFields("edB",sobOf(L),presAct())}<div class="bar"><button class="btn primary" id="edOk" data-i="${i}">Guardar</button><button class="btn" id="finCancel">Cancelar</button></div><div class="bar"><button class="btn danger" id="edReopen" data-i="${i}">Este lote no se ha cosechado: dejarlo pendiente</button></div>`)}});
+function finEst(i){const L=S.lots[i];const el=$("finEst");if(!el)return;let e=toMin($("finT").value);if(e<L.s&&L.s-e>720)e+=1440;const ph=personHours(L.s,e);const h=(e-L.s-pauseOverlap(L.s,e))/60;
+  el.innerHTML=e>L.s?`Duración ${dur(e-L.s)} · ${f0(ph/(h||1))} personas promedio · ≈ <b>${f0(ph*n(S.rend))} kg</b> (personas × horas × ${f1(S.rend)} kg/h)`:"La hora de fin debe ser después del inicio."}
+$("sheet").addEventListener("input",e=>{if(e.target.id==="finT"){const b=$("finOk");if(b)finEst(+b.dataset.i)}});
+$("sheet").addEventListener("click",e=>{const t=e.target;
+  if(t.id==="finCancel"){closeSheet();return}
+  if(t.dataset.pzw){$("sheetIn").querySelectorAll("[data-pzw]").forEach(x=>x.classList.toggle("on",x===t));return}
+  if(t.id==="pzOk"){const w=($("sheetIn").querySelector("[data-pzw].on")||{}).dataset;const why=w?w.pzw:"Pausa";const av=$("pzA").value,bv=$("pzB").value;if(!av){toast("Ponga la hora de inicio");return}const a=toMin(av);
+    if(bv){let bb=toMin(bv);if(bb<a&&a-bb>720)bb+=1440;if(bb<=a){toast("La hora de fin debe ser después del inicio");return}S.pauses.push({a,b:bb,why});S.pauses.sort((x,y)=>x.a-y.a);logE("pausa",{detalle:why,inicio:minTo(a),fin:minTo(bb)});toast(`${why} ${minTo(a)} – ${minTo(bb)}`)}
+    else{S.pausa={a,why};logE("pausa",{detalle:why,inicio:minTo(a)});toast(`${why} desde ${minTo(a)}`)}
+    closeSheet();save();render();return}
+  if(t.id==="rsOk"){let bb=toMin($("rsT").value);if(bb<S.pausa.a&&S.pausa.a-bb>720)bb+=1440;if(bb<=S.pausa.a){toast("La hora de fin debe ser después del inicio");return}S.pauses.push({a:S.pausa.a,b:bb,why:S.pausa.why});S.pauses.sort((x,y)=>x.a-y.a);logE("reanuda",{detalle:S.pausa.why,fin:minTo(bb),min:Math.round(bb-S.pausa.a)});S.pausa=null;closeSheet();save();render();return}
+  if(t.id==="finOk"){if(!$("finT").value){toast("Ponga la hora de fin");return}const L=S.lots[+t.dataset.i];let e=toMin($("finT").value);if(e<L.s&&L.s-e>720)e+=1440;if(e<=L.s){toast("La hora de fin debe ser después del inicio");return}if(sum4(entOf(L))){const sb=readP("finS");if(sb.some((x,i)=>x>entOf(L)[i])){toast("Sobrantes no puede ser más que lo entregado");return}L.sob=sb}L.e=e;L.kgR=+(personHours(L.s,L.e)*n(S.rend)).toFixed(1);logE("fin",{lote:L.l,hora:minTo(e)});
+    const nx=S.lots.find(x=>x.s==null);closeSheet();toast(nx?`${L.l} terminado · toque “Iniciar ${nx.l}” al llegar`:"Último lote terminado");save();render()}
+  if(t.id==="stOk"){if(!$("stT").value){toast("Ponga la hora de inicio");return}const L=S.lots[+t.dataset.i];L.s=toMin($("stT").value);logE("inicio",{lote:L.l,per:perAt(L.s),hora:minTo(L.s)});closeSheet();save();render();toast("Inicio "+L.l+" "+minTo(L.s));return}
+  if(t.id==="edReopen"){const L=S.lots[+t.dataset.i];delete L.s;delete L.e;delete L.kgR;logE("reabre",{lote:L.l});closeSheet();save();render();toast(L.l+" queda pendiente");return}
+  if(t.id==="edOk"){const L=S.lots[+t.dataset.i];const vs=$("edS").value,ve=$("edE").value;if(!vs||!ve){toast("Ponga inicio y fin");return}let ns=toMin(vs),ne=toMin(ve);if(ne<ns&&ns-ne>720)ne+=1440;if(ne<=ns){toast("El fin debe ser después del inicio");return}const ee=readP("edN"),es=readP("edB");if(es.some((x,i)=>x>ee[i])){toast("Sobrantes no puede ser más que lo entregado");return}L.ent=ee;L.sob=es;L.s=ns;L.e=ne;L.kgR=+(personHours(L.s,L.e)*n(S.rend)).toFixed(1);logE("correccion",{lote:L.l});closeSheet();save();render()}});
+$("exBox").addEventListener("click",e=>{if(e.target.id!=="exReset")return;const k=def();S={...k,lots:[],ejemplo:false};S.ini=minTo(Math.round(nowMin()/15)*15);S.lim=minTo(toMin(S.ini)+420);save();go("plan");render();toast("Arme su ruta inicial")});
+function pzSheet(){const now=minTo(nowMin());openSheet(`<h3 style="margin-top:0">Registrar pausa</h3><div class="pzopt">${["Almuerzo","Lluvia","Falta de estuches","Otra novedad"].map((x,i)=>`<button class="btn sm${i?"":" on"}" data-pzw="${x}">${x}</button>`).join("")}</div><div class="sfields" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="field"><label for="pzA">Hora de inicio</label><input type="time" id="pzA" value="${now}"></div><div class="field"><label for="pzB">Hora de fin</label><input type="time" id="pzB" value=""></div></div><p class="note">Si la pausa sigue en curso deje la hora de fin vacía y márquela después con “Terminar pausa”.</p><div class="bar"><button class="btn primary" id="pzOk">Guardar pausa</button><button class="btn" id="finCancel">Cancelar</button></div>`)}
+$("pauseBtn").addEventListener("click",pzSheet);
+$("sheet").addEventListener("click",e=>{const b=e.target.closest("[data-tq]");if(!b)return;const inp=$(b.dataset.for);if(!inp)return;const base=b.dataset.tq==="now"||!inp.value?Math.round(nowMin()):toMin(inp.value);const v=b.dataset.tq==="now"?base:base+Number(b.dataset.tq);inp.value=minTo(((v%1440)+1440)%1440);inp.dispatchEvent(new Event("input",{bubbles:true}))});
+const selAll=t=>{try{t.select()}catch(x){}};
+document.addEventListener("focusin",e=>{const t=e.target;if(t&&t.tagName==="INPUT"&&(t.type==="number"||t.type==="text")&&!t.readOnly){t._v0=t.value;t._selNext=true;selAll(t);setTimeout(()=>{if(t.value===t._v0)selAll(t)},0)}});
+document.addEventListener("mouseup",e=>{const t=e.target;if(t&&t._selNext){t._selNext=false;if(t.value===t._v0){e.preventDefault();selAll(t)}}});
+document.addEventListener("touchend",e=>{const t=e.target;if(t&&t._selNext){setTimeout(()=>{if(t.value===t._v0)selAll(t);t._selNext=false},30)}},{passive:true});
+$("perNow").addEventListener("click",()=>{const v=perAt(nowMin());openSheet(`<h3 style="margin-top:0">Personas en campo</h3><p class="note" style="margin:-4px 0 8px">${S.started?"Queda registrado con la hora del reloj.":"Personas con las que empieza el día."}</p><div class="field" style="max-width:200px"><label for="pnV">Personas</label><input type="number" inputmode="numeric" enterkeyhint="done" id="pnV" min="0" value="${v}" enterkeyhint="done"></div><div class="bar"><button class="btn primary" id="pnOk">Guardar</button><button class="btn" id="finCancel">Cancelar</button></div>`);setTimeout(()=>$("pnV")&&$("pnV").focus(),60)});
+$("sheet").addEventListener("click",e=>{if(e.target.id!=="pnOk")return;const v=Math.max(0,Math.round(n($("pnV").value)));const now=Math.floor(nowMin());
+  if(!S.started){S.per=v}else{const last=S.perLog[S.perLog.length-1];if(last&&last.m===now)last.v=v;else S.perLog.push({m:now,v});logE("personas",{v})}closeSheet();save();render();toast(`${v} personas`)});
+$("sheet").addEventListener("keydown",e=>{if(e.key!=="Enter"||e.target.tagName!=="INPUT")return;const t=e.target;e.preventDefault();
+  if(t.id==="otherLot"){$("addOther")&&$("addOther").click();return}
+  if(t.dataset.kga!=null){const all=[...$("sheetIn").querySelectorAll("[data-kga]")];const k=all.indexOf(t);if(k<all.length-1){all[k+1].focus();return}}
+  const pb=$("sheetIn").querySelector(".btn.primary");if(pb)pb.click()});
+$("kgAllBtn").addEventListener("click",kgAllSheet);
+$("sheet").addEventListener("click",e=>{if(e.target.id!=="kgaOk")return;$("sheetIn").querySelectorAll("[data-kga]").forEach(inp=>{const L=S.lots[+inp.dataset.kga];if(L)L.kg=Math.max(0,n(inp.value))});if(!S.started)S.plan=null;closeSheet();save();render();toast("Kilos guardados")});
+
+document.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  if(b.id==="estRecBtn"){const idx=presAct();openSheet(`<h3 style="margin-top:0">Recibí estuches</h3><p class="note" style="margin:-4px 0 8px">Estuches que llegaron de bodega para la cuadrilla.</p>${presFields("erQ",[0,0,0,0],idx)}<div class="field" style="max-width:200px;margin-top:8px"><label for="erT">Hora</label><input type="time" id="erT" value="${minTo(nowMin())}"></div><div class="bar"><button class="btn sm" id="erFill">Llenar con lo que falta del pedido</button></div><div class="bar"><button class="btn primary" id="erOk">Guardar</button><button class="btn" id="finCancel">Cancelar</button></div>`)}
+  if(b.dataset.erdel2!=null){const r=S.estRec.splice(+b.dataset.erdel2,1)[0];logE("estuches_quita_recibo",{detalle:estTxt(A4(r.q))});save();render();toast("Recibo quitado");return}
+  if(b.id==="estEntBtn"||b.dataset.estent!=null){const C=calc();const nx=b.dataset.estent!=null?S.lots[+b.dataset.estent]:estNextLot(C);if(!nx){toast("No hay lotes pendientes");return}const opts=S.lots.map((L,i)=>L.e==null?`<option value="${i}"${L===nx?" selected":""}>${esc(L.l)}</option>`:"").join("");
+    openSheet(`<h3 style="margin-top:0">Entregar estuches en lote</h3><div class="field" style="max-width:200px"><label for="eeL">Lote</label><select id="eeL">${opts}</select></div><div id="eeBox"></div><div class="bar"><button class="btn primary" id="eeOk">Guardar entrega</button><button class="btn" id="finCancel">Cancelar</button></div>`);eeFill()}});
+function eeFill(){const C=calc();const L=S.lots[+$("eeL").value];if(!L)return;const E=estState(C);const nd=E.need(L);const idx=presAct();const sug=nd.map((x,i)=>x>0?cajas(x,i)*PRES[i].cx:0);
+  $("eeBox").innerHTML=`<p class="note" style="margin:8px 0 2px">${esc(L.l)} (${(pedAlloc().M[L.l]||{}).ab||""}) necesita ${estTxt(estNeed(L))}${sum4(entOf(L))?`; ya tiene ${estTxt(entOf(L))}`:""}. Sugerido en cajas completas:</p>${presFields("eeQ",sug,idx)}<p class="note">En mano: ${estTxt(E.mano.map(x=>Math.max(0,x)),idx)}</p>`}
+$("sheet").addEventListener("change",e=>{if(e.target.id==="eeL")eeFill()});
+$("sheet").addEventListener("click",e=>{const t=e.target;
+  if(t.id==="erFill"){const E=estState(calc());const all=S.lots.reduce((a,L)=>a.map((x,i)=>x+estNeed(L)[i]),[0,0,0,0]);[0,1,2,3].forEach(i=>{const el=$("erQ"+i);if(el){const x=Math.max(0,all[i]-E.rec[i]);el.value=x?cajas(x,i)*PRES[i].cx:""}});return}
+  if(t.id==="erOk"){const q=readP("erQ");if(!sum4(q)){toast("Ponga la cantidad");return}const m=$("erT").value?toMin($("erT").value):nowMin();(S.estRec=S.estRec||[]).push({m,q});logE("estuches_recibidos",{v:sum4(q),detalle:estTxt(q)});closeSheet();save();render();toast(`${f0(sum4(q))} estuches recibidos`)}
+  if(t.id==="eeOk"){const L=S.lots[+$("eeL").value];const q=readP("eeQ");if(!L||!sum4(q)){toast("Ponga la cantidad");return}const mn=estState(calc()).mano;L.ent=entOf(L).map((x,i)=>x+q[i]);logE("estuches_entregados",{lote:L.l,v:sum4(q),detalle:estTxt(q)});closeSheet();save();render();toast(q.some((x,i)=>x>mn[i])?`Ojo: entregó más de lo que había en mano. Registre lo recibido de bodega.`:`${f0(sum4(q))} estuches a ${L.l}`)}});
+$("estT").addEventListener("click",e=>{const b=e.target.closest("[data-edit]");if(!b)return;const x=document.querySelector(`#liveList [data-edit="${b.dataset.edit}"]`);if(x)x.click()});
+$("pctC").addEventListener("change",()=>{S.pctC=Math.min(100,Math.max(1,n($("pctC").value)));save();render()});
+$("pedT").addEventListener("change",e=>{const t=e.target;if(t.dataset.pv==null)return;pedRows()[+t.dataset.pv][+t.dataset.pp]=Math.max(0,Math.round(n(t.value)));save();render()});
+$("pedAdd").addEventListener("click",()=>{pedRows().push([0,0,0,0]);save();render()});
+$("pedDel").addEventListener("click",()=>{const r=pedRows();if(r.length>1){r.pop();save();render()}});
+$("estMg").addEventListener("change",()=>{S.estMg=n($("estMg").value);save();render()});
+
+$("clock").addEventListener("click",()=>{if(S.ejemplo){toast("En el ejemplo el reloj está fijo. Borre el ejemplo para usar su hora.");return}
+  openSheet(`<h3 style="margin-top:0">Hora del reloj</h3><p class="note" style="margin:-4px 0 8px">Si la hora del celular no está bien, póngala aquí. El reloj sigue corriendo desde esa hora y todos los cálculos la usan.</p><div class="field" style="max-width:200px"><label for="clkT">Hora actual</label><input type="time" id="clkT" value="${minTo(nowMin())}"></div><div class="bar"><button class="btn primary" id="clkOk">Guardar hora</button>${S.clkOff?`<button class="btn" id="clkReset">Usar la hora del celular</button>`:""}<button class="btn" id="finCancel">Cancelar</button></div>`)});
+$("sheet").addEventListener("click",e=>{const t=e.target;
+  if(t.id==="clkOk"){const v=$("clkT").value;if(!v){toast("Ponga la hora");return}const d=new Date();const real=d.getHours()*60+d.getMinutes()+d.getSeconds()/60;let off=toMin(v)-real;if(off>720)off-=1440;if(off<-720)off+=1440;S.clkOff=Math.abs(off)<1?0:off;logE("reloj",{detalle:"hora ajustada a "+v});closeSheet();save();render();toast("Reloj en "+v)}
+  if(t.id==="clkReset"){S.clkOff=0;closeSheet();save();render();toast("Reloj con la hora del celular")}});
+
+["gMeta","gPz","gAnt","gDev"].forEach(id=>$(id).addEventListener("change",()=>{const v=$(id).value;if(id==="gMeta")S.gMeta=v;if(id==="gPz")S.gPz=n(v);if(id==="gAnt")S.gAnt=n(v);if(id==="gDev")S.gDev=n(v);S.gK=null;save();render()}));
+document.querySelectorAll("[data-gk]").forEach(b=>b.addEventListener("click",()=>{S.gK=Math.max(0,n($("gK").textContent)+Number(b.dataset.gk));render()}));
+$("gSend").addEventListener("click",()=>{const k=n($("gK").textContent);if(!S.started||k<=0)return;const now=Math.floor(nowMin());const v=Math.max(0,perAt(now)-k);const act=$("gAct").value.trim()||"otra actividad";
+  const last=S.perLog[S.perLog.length-1];if(last&&last.m===now)last.v=v;else S.perLog.push({m:now,v});logE("apoyo",{v:k,detalle:act});S.gK=null;$("gAct").value="";save();render();toast(`${k} ${k===1?"persona":"personas"} a ${act} · quedan ${v}`)});
+
+$("pauseBox").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.pzdel!=null){const p=S.pauses.splice(+b.dataset.pzdel,1)[0];logE("quita_pausa",{detalle:p.why,inicio:minTo(p.a),fin:minTo(p.b)});save();render();toast("Pausa quitada")}
+  if(b.id==="resume")openSheet(`<h3 style="margin-top:0">Terminar pausa</h3><p class="note" style="margin:-4px 0 8px">${esc(S.pausa.why)} desde ${minTo(S.pausa.a)}. Ponga la hora en que se reanudó la cosecha.</p><div class="field" style="max-width:200px"><label for="rsT">Hora de fin</label><input type="time" id="rsT" value="${minTo(nowMin())}"></div><div class="bar"><button class="btn primary" id="rsOk">Guardar fin de pausa</button><button class="btn" id="finCancel">Cancelar</button></div>`)});
+$("tab-datos").addEventListener("change",e=>{const t=e.target;const m={cSup:"sup",cGrp:"grp",cFecha:"fecha"};if(m[t.id])S[m[t.id]]=t.value;else if(t.id==="cVel")S.vel=n(t.value);else if(t.id==="cFix")S.fix=n(t.value);else return;save();render()});
+document.querySelectorAll("[data-esp]").forEach(b=>b.addEventListener("click",()=>{S.esp=b.dataset.esp;if(S.esp==="ZARZAMORA"&&n(S.rend)===2.1)S.rend=2.6;if(S.esp==="FRAMBUESA"&&n(S.rend)===2.6)S.rend=2.1;if(!S.started)S.plan=null;save();render()}));
+/* ---------- reporte WhatsApp ---------- */
+function waText(){const C=calc();const fe=(S.fecha||"").split("-").reverse().join("/");
+  let t=`*Reporte cosecha ${fe}*\nGrupo ${S.grp||"-"}${S.sup?" · "+S.sup:""} · ${S.esp==="ZARZAMORA"?"Zarzamora":"Frambuesa"}\nPersonas: ${C.perNow}${S.perLog.length?` (inicio ${S.per})`:""}\n\n`;
+  S.lots.forEach((L,i)=>{const p=C.P[L.l],q=C.Q[L.l];
+    if(L.e!=null){const dv=p?(L.e-L.s)-(p.e-p.s):0;t+=`✅ *${L.l}*: ${minTo(L.s)} – ${minTo(L.e)} (${dur(L.e-L.s)})${p?` · plan ${dur(p.e-p.s)}${Math.abs(dv)>=5?` · ${dv>0?"+":"−"}${dur(Math.abs(dv))}`:""}`:""}${sum4(entOf(L))?` · ${f0(estUsed(L))} est.`:""}\n`}
+    else if(L.s!=null)t+=`🟡 *${L.l}*: desde ${minTo(L.s)} · fin aprox. ${q?minTo(q.e):"-"}\n`;
+    else t+=`⏳ ${L.l}: aprox. ${q?minTo(q.s)+" – "+minTo(q.e):"-"}\n`});
+  {const E=estState(C);const ix=[0,1,2,3].filter(i=>E.rec[i]||E.ent[i]);if(ix.length)t+=`\n*Estuches*:\n`+ix.map(i=>`📦 ${PRES[i].n}: recibidos ${f0(E.rec[i])} · usados ${f0(E.used[i])} · en mano ${f0(E.mano[i])}${E.falta[i]>0?` · faltan ${f0(E.falta[i])}`:""}`).join("\n")+"\n"}
+  const ap=S.log.filter(e=>e.k==="apoyo");if(ap.length)t+=`\n*Apoyo a otras actividades*:\n`+ap.map(e=>`➡️ ${e.v} ${e.v===1?"persona":"personas"} a ${e.detalle} (${e.t})`).join("\n")+"\n";
+  const pz=S.pauses.reduce((a,p)=>a+(p.b-p.a),0);if(S.pauses.length||S.pausa){t+=`\n*Pausas* (${dur(pz)}):\n`+S.pauses.map(p=>`⏸ ${p.why}: ${minTo(p.a)} – ${minTo(p.b)} (${dur(p.b-p.a)})`).join("\n");if(S.pausa)t+=`${S.pauses.length?"\n":""}⏸ ${S.pausa.why}: desde ${minTo(S.pausa.a)} (en curso)`}
+  return t.trimEnd()}
+function copyWA(box){const t=waText();const ok=()=>toast("Reporte copiado: péguelo en WhatsApp");
+  const fb=()=>{$(box).innerHTML=`<textarea id="waTxt_${box}" style="width:100%;height:180px;font-size:13px;margin-top:8px" readonly>${esc(t)}</textarea><p class="note">Mantenga presionado el texto, seleccione todo y copie.</p>`;const ta=$("waTxt_"+box);ta.select();try{if(document.execCommand("copy"))ok()}catch(e){}};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok).catch(fb);else fb()}
+$("waBtn").addEventListener("click",()=>copyWA("waBox"));
+$("waBtn2").addEventListener("click",()=>copyWA("csvBox"));
+/* CSV */
+function csv(rows){if(!rows.length)return"";const cols=Object.keys(rows[0]);const fmt=v=>{if(typeof v==="number")return String(v).replace(".",",");const t=String(v??"");return /[;"\n]/.test(t)?'"'+t.replace(/"/g,'""')+'"':t};return "﻿"+cols.join(";")+"\n"+rows.map(o=>cols.map(c=>fmt(o[c])).join(";")).join("\n")}
+function lotRows(){const C=calc();return S.lots.map((L,i)=>{const p=C.P[L.l],q=C.Q[L.l];const ph=L.e!=null?personHours(L.s,L.e):0;
+  return {fecha:S.fecha,supervisor:S.sup,grupo:S.grp,especie:S.esp,orden:i+1,lote:L.l,kg_estimados_lote:n(L.kg),kg_por_tiempo:L.e!=null?+(ph*n(S.rend)).toFixed(1):"",plan_inicio:p?minTo(p.s):"",plan_fin:p?minTo(p.e):"",real_inicio:L.s!=null?minTo(L.s):"",real_fin:L.e!=null?minTo(L.e):"",
+    minutos_plan:p?Math.round(p.e-p.s):"",minutos_real:L.e!=null?Math.round(L.e-L.s):"",minutos_pausa:L.e!=null?Math.round(pauseOverlap(L.s,L.e)):"",personas_promedio:L.e!=null&&L.e>L.s?+(ph/((L.e-L.s-pauseOverlap(L.s,L.e))/60||1)).toFixed(1):"",
+    viaje_pedido:(pedAlloc().M[L.l]||{}).ab||"",...Object.fromEntries(PRES.flatMap((p,pi)=>[["est_necesita_"+p.n,estNeed(L)[pi]],["est_entregados_"+p.n,entOf(L)[pi]],["est_sobrantes_"+p.n,L.e!=null?sobOf(L)[pi]:""],["est_usados_"+p.n,L.e!=null?usedOf(L)[pi]:""]])),
+    estado:L.e!=null?"terminado":L.s!=null?"en curso":"pendiente",fin_proyectado:L.e==null&&q?minTo(q.e):""}})}
+function logRows(){return S.log.map(e=>({fecha:S.fecha,supervisor:S.sup,grupo:S.grp,hora:e.t,tipo:e.k,lote:e.lote||"",kg:e.kg??"",personas:e.v??e.per??"",detalle:[e.detalle,e.inicio?(e.inicio+(e.fin?" a "+e.fin:"")):(e.fin?"fin "+e.fin:""),e.min!=null?e.min+" min":""].filter(Boolean).join(" · ")}))}
+async function download(text,name){S.exported=minTo(nowMin());save();render();
+  const dl=window.claude&&claude.use?await claude.use("downloads").catch(()=>null):null;
+  if(dl){try{await dl.save({filename:name,data:text});toast("CSV listo");return}catch(e){if(e&&e.code==="declined")return}}
+  else try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"text/csv"}));a.download=name;document.body.appendChild(a);a.click();a.remove();toast("CSV descargado")}catch(e){}
+  $("csvBox").innerHTML=`<p class="note" style="margin-top:10px">Si no se descargó, copie el texto:</p><textarea id="csvTxt" style="width:100%;height:120px;font-size:12px" readonly>${esc(text.slice(1))}</textarea><div class="bar"><button class="btn" id="csvCopy">Copiar CSV</button></div>`}
+const fname=k=>`${k}_${S.fecha}_grupo${S.grp||""}${S.sup?"_"+S.sup.replace(/\s+/g,"_"):""}.csv`;
+$("csvLots").addEventListener("click",()=>download(csv(lotRows()),fname("tiempos_lotes")));
+$("csvLog").addEventListener("click",()=>{const r=logRows();if(!r.length){toast("Sin registros");return}download(csv(r),fname("registros"))});
+$("csvBox").addEventListener("click",e=>{if(e.target.id!=="csvCopy")return;const t=$("csvTxt");const ok=()=>toast("CSV copiado");if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t.value).then(ok).catch(()=>{t.select();try{document.execCommand("copy");ok()}catch(x){}});else{t.select();try{document.execCommand("copy");ok()}catch(x){}}});
+$("newDay").addEventListener("click",()=>{$("askBox").innerHTML=`<div class="ask">${S.exported?"":"No ha exportado el CSV de hoy. "}¿Empezar día nuevo?<button class="btn danger" id="askYes">Sí</button><button class="btn" id="askNo">Cancelar</button></div>`});
+$("askBox").addEventListener("click",e=>{if(e.target.id==="askNo")$("askBox").innerHTML="";if(e.target.id==="askYes"){try{const A=JSON.parse(localStorage.getItem(KEY+"-arch")||"{}");A[S.fecha+"_"+Date.now()]=S;localStorage.setItem(KEY+"-arch",JSON.stringify(A))}catch(x){}
+  const k=def();S={...k,sup:S.sup,grp:S.grp,esp:S.esp,rend:S.rend,per:S.per,ini:S.ini,lim:S.lim,vel:S.vel,fix:S.fix,pctC:S.pctC,estMg:S.estMg,lots:S.lots.map(L=>({l:L.l,kg:0})),ejemplo:false};save();$("askBox").innerHTML="";go("plan");render();toast("Día nuevo listo")}});
+setInterval(()=>{$("clock").textContent=clkTxt();const a=document.activeElement;if(!a||a===document.body||a.tagName==="BUTTON")render()},30000);
+$("clock").textContent=clkTxt();
+/* ejemplo: día en curso con un lote terminado, para ver la herramienta funcionando */
+if(S.ejemplo&&!S.started){const t0=360;S.ini="06:00";S.lim="14:00";
+  S.plan=simulate(S.lots,{from:t0,rate:n(S.rend),per:n(S.per),prev:null}).rows;S.started=true;
+  const A=S.lots[0],B=S.lots[1];A.s=t0;A.e=t0+62;B.s=t0+69;S.ped=[[0,130,0,160],[200,300,0,0],[200,305,0,0]];S.estRec=[];A.ent=estNeed(A).map((x,i)=>x?cajas(x,i)*PRES[i].cx:0);A.sob=A.ent.map(x=>x?Math.round(x*0.04):0);B.ent=estNeed(B).map((x,i)=>x?cajas(x,i)*PRES[i].cx:0);S.estRec=[{m:t0-15,q:A.ent.map((x,i)=>x+B.ent[i]+[48,120,0,0][i])}];S.perLog=[{m:t0+90,v:28}];S.pauses=[{a:t0+100,b:t0+115,why:"Lluvia"}];
+  S.log=[{t:"06:00",k:"inicio",lote:A.l,per:32},{t:"07:02",k:"fin",lote:A.l,kg:66},{t:"07:09",k:"inicio",lote:B.l,per:32},{t:"07:30",k:"personas",v:28},{t:"07:40",k:"pausa",detalle:"Lluvia"},{t:"07:55",k:"reanuda",min:15}];}
+render();
+try{const t=localStorage.getItem(KEY+"-tab");if(t&&document.querySelector(`section[data-tab="${t}"]`))go(t);else if(S.started)go("vivo")}catch(e){}
+</script>
+<script>if("serviceWorker" in navigator&&location.protocol==="https:"){navigator.serviceWorker.register("sw.js").catch(()=>{})}</script></body></html>

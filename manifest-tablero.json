@@ -1,0 +1,25 @@
+{
+ "id": "./tablero.html",
+ "name": "Tablero de Campo Santana",
+ "short_name": "Tablero Santana",
+ "start_url": "./tablero.html",
+ "scope": "./",
+ "display": "standalone",
+ "background_color": "#EEF1EC",
+ "theme_color": "#1E5E43",
+ "lang": "es",
+ "icons": [
+  {
+   "src": "icono-tablero-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any maskable"
+  },
+  {
+   "src": "icono-tablero-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any maskable"
+  }
+ ]
+}

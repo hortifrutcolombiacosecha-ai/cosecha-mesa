@@ -1,0 +1,25 @@
+{
+ "id": "./cuadrilla.html",
+ "name": "Cuadrilla en Campo",
+ "short_name": "Cuadrilla Santana",
+ "start_url": "./cuadrilla.html",
+ "scope": "./",
+ "display": "standalone",
+ "background_color": "#EEF1EC",
+ "theme_color": "#1E4E6B",
+ "lang": "es",
+ "icons": [
+  {
+   "src": "icono-cuadrilla-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any maskable"
+  },
+  {
+   "src": "icono-cuadrilla-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any maskable"
+  }
+ ]
+}
