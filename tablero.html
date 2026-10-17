@@ -295,7 +295,7 @@ nav.tabs button[aria-current=true]{color:var(--accent);box-shadow:inset 0 3px 0 
   <div class="bar"><button class="btn" id="addMapa">+ Lote al mapa</button></div>
   </details>
   <h3>Día nuevo</h3>
-  <p class="note">Guarda el día en el historial y luego borra pedido, kilos y marcas de despacho. Deja la ruta, la asistencia y los ajustes.</p>
+  <p class="note">Guarda el día en el historial y borra pedido, kilos y marcas de despacho. Puede dejar los lotes de la ruta o borrarlos también. La asistencia y los ajustes se mantienen.</p>
   <div class="bar"><button class="btn danger" id="newDay">Empezar día nuevo</button><button class="btn" id="copyBtn">Copiar resumen para WhatsApp</button></div>
   <div id="askBox"></div>
 </section>
@@ -684,8 +684,11 @@ $("histTable").addEventListener("click",e=>{const b=e.target.closest("[data-csvd
 $("csvBox").addEventListener("click",e=>{if(e.target.id!=="csvCopy")return;const t=$("csvTxt");const v=t.value;const done=()=>toast("CSV copiado");if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(v).then(done).catch(()=>{t.select();try{document.execCommand("copy");done()}catch(err){}});else{t.select();try{document.execCommand("copy");done()}catch(err){}}});
 $("addMapa").addEventListener("click",()=>{CF.mapa.push({l:"",v:"",e:"",x:0,y:0,p:""});dirty("cfg");renderAj()});
 function ask(msg,fn){$("askBox").innerHTML=`<div class="ask">${msg}<button class="btn danger" id="askYes">Sí, continuar</button><button class="btn" id="askNo">Cancelar</button></div>`;$("askYes").onclick=()=>{fn();$("askBox").innerHTML=""};$("askNo").onclick=()=>$("askBox").innerHTML=""}
-$("newDay").addEventListener("click",()=>ask("¿Borrar pedido, kilos y marcas de despacho? El día actual queda guardado en el historial.",async()=>{await flushHist();ESPS.forEach(e=>PL.pedido[e]=PL.pedido[e].map(()=>[0,0,0,0]));PL.ruta.forEach(r=>{r.kt="";r.kc="";r.c=""});
-  const d=new Date();PL.fecha=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");CK={};dirty("plan");subscribeChecks();renderAll();toast("Listo para el día nuevo")}));
+async function newDayGo(keep){await flushHist();ESPS.forEach(e=>PL.pedido[e]=PL.pedido[e].map(()=>[0,0,0,0]));
+  if(keep)PL.ruta.forEach(r=>{r.kt="";r.kc="";r.c=""});else PL.ruta=[];
+  const d=new Date();PL.fecha=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");CK={};dirty("plan");subscribeChecks();renderAll();$("askBox").innerHTML="";toast(keep?"Día nuevo: se dejaron los lotes, sin kilos":"Día nuevo: ruta vacía, agregue los lotes de hoy")}
+$("newDay").addEventListener("click",()=>{$("askBox").innerHTML=`<div class="ask" style="display:grid;gap:8px">¿Empezar día nuevo? El día actual queda guardado en el historial.<button class="btn danger" id="ndAll">Borrar todo, también los lotes de la ruta</button><button class="btn" id="ndKeep">Dejar los lotes (solo borrar kilos y pedido)</button><button class="btn" id="askNo">Cancelar</button></div>`;
+  $("ndAll").onclick=()=>newDayGo(false);$("ndKeep").onclick=()=>newDayGo(true);$("askNo").onclick=()=>$("askBox").innerHTML=""});
 $("copyBtn").addEventListener("click",()=>{const t=C.tot;let s=`*Programación cosecha ${PL.fecha||""}*\nCajas: ${f0(t.cajas)} · Etiquetas: ${f0(t.etiq)} · Pesadoras: ${f0(t.pes)} · Fin: ${hhmm(t.fin)}\n`;
   C.espRes.forEach(x=>{if(x.ped>0)s+=`${cap(x.e)}: pedido ${f1(x.ped)} kg, ${x.bal>=0?"sobran "+f0(x.bal):"FALTAN "+f0(-x.bal)} kg\n`});
   s+=`\n*Puntos de mesas*\n`;C.pts.forEach(q=>{s+=`P${q.id} (${hhmm(q.s)}–${hhmm(q.f)}) ${q.lots.map(r=>r.l).join(",")} · mesas en ${q.where} · ${q.pes} pesadoras · ${q.cj.reduce((a,b)=>a+b,0)} cajas · ${q.et.reduce((a,b)=>a+b,0)} etiq. · ${q.mode==="inicio"?"armar al inicio"+(q.s>0.01?" (lista antes de "+hhmm(q.s)+")":""):q.o1?(q.o1.late?"⚠ conseguir mesas extra (P"+q.o1.id+" no alcanza)":"mesas de P"+q.o1.id+" al terminar de pesar ("+hhmm(q.o1.lib)+")"+(q.o2?" (alt. P"+q.o2.id+")":"")):"conseguir mesas"}\n`});
